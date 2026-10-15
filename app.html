@@ -1,0 +1,1584 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6b1f1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Violin Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f8f3ec; --card:#ffffff; --ink:#2a1d17; --muted:#7a6a5f; --line:#e8dccd;
+  --brand:#6b1f1a; --brand2:#9c4a22; --gold:#c8963e; --soft:#f3e7da;
+  --ok:#2f7a4a; --okbg:#e6f3ea; --warn:#a85a14; --warnbg:#fbefdf; --bad:#a32020; --badbg:#fbe9e9;
+  --info:#1f4e79; --infobg:#e6eef7; --purple:#5b3f8a; --purplebg:#efe9f8;
+  --shadow:0 1px 2px rgba(60,30,10,.06),0 4px 14px rgba(60,30,10,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#1b1412; --card:#261c19; --ink:#f3e9df; --muted:#b5a394; --line:#3d2f29;
+    --brand:#d27a5c; --brand2:#e09a66; --gold:#d9ad5c; --soft:#33251f;
+    --ok:#7fcf9b; --okbg:#1f3328; --warn:#f0b26b; --warnbg:#3a2a18; --bad:#f08a8a; --badbg:#3b1f1f;
+    --info:#8fb8e6; --infobg:#1d2a3a; --purple:#bba3e6; --purplebg:#2c2440;
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--brand)}
+.top{position:sticky;top:0;z-index:20;background:var(--brand);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.top .logo{width:34px;height:34px;flex:none}
+.top h1{font:700 19px/1.1 Fraunces,Georgia,serif;margin:0;letter-spacing:.2px}
+.top .sub{font-size:12px;opacity:.8}
+.top .spacer{flex:1}
+.iconbtn{background:rgba(255,255,255,.14);border:0;color:#fff;border-radius:10px;padding:8px 12px;cursor:pointer;font-weight:600;font-size:13px}
+.iconbtn:hover{background:rgba(255,255,255,.24)}
+.sync{font-size:12px;opacity:.85;white-space:nowrap}
+nav.tabs{position:sticky;top:58px;z-index:19;background:var(--card);border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;padding:6px 10px;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{border:0;background:none;padding:9px 13px;border-radius:999px;cursor:pointer;font-weight:600;color:var(--muted);white-space:nowrap}
+nav.tabs button.on{background:var(--soft);color:var(--brand)}
+main{max-width:1100px;margin:0 auto;padding:18px 16px 80px}
+h2{font:700 24px/1.2 Fraunces,Georgia,serif;margin:4px 0 14px}
+h3{font:700 17px/1.2 Fraunces,Georgia,serif;margin:22px 0 10px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.between{justify-content:space-between}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.stat .n{font:700 24px/1.1 Fraunces,Georgia,serif}
+.stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 13px;cursor:pointer;font-weight:600;font-size:14px}
+.btn:hover{border-color:var(--brand2)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.small{padding:6px 10px;font-size:13px}
+.btn.ok{background:var(--okbg);border-color:transparent;color:var(--ok)}
+.btn.warn{background:var(--warnbg);border-color:transparent;color:var(--warn)}
+.btn.bad{background:var(--badbg);border-color:transparent;color:var(--bad)}
+.btn.info{background:var(--infobg);border-color:transparent;color:var(--info)}
+.btn.danger{color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.lesson{display:grid;grid-template-columns:88px 1fr;gap:12px;align-items:start;margin-bottom:10px}
+.lesson .time{font:700 18px/1.1 Fraunces,Georgia,serif;color:var(--brand)}
+.lesson .len{font-size:12px;color:var(--muted)}
+.lesson .name{font-weight:700;font-size:16px}
+.lesson .meta{font-size:13px;color:var(--muted);margin:2px 0 8px}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--soft);color:var(--muted)}
+.pill.ok{background:var(--okbg);color:var(--ok)}
+.pill.warn{background:var(--warnbg);color:var(--warn)}
+.pill.bad{background:var(--badbg);color:var(--bad)}
+.pill.info{background:var(--infobg);color:var(--info)}
+.pill.purple{background:var(--purplebg);color:var(--purple)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--card);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--soft);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+tbody tr.click{cursor:pointer}
+tbody tr.click:hover td{background:var(--soft)}
+.num{text-align:right;white-space:nowrap}
+.owe{color:var(--bad);font-weight:700}
+.credit{color:var(--ok);font-weight:700}
+.muted{color:var(--muted)}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+input[type=text],input[type=email],input[type=tel],input[type=number],input[type=date],input[type=time],input[type=month],input[type=search],input[type=url],input[type=password],select,textarea{
+  width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 11px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--brand2);box-shadow:0 0 0 3px rgba(156,74,34,.15)}
+textarea{min-height:76px;resize:vertical}
+label.f{display:block;margin-bottom:12px}
+label.f span{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px}
+.week{display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));gap:8px;overflow-x:auto}
+.day h4{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.slot{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--brand2);border-radius:10px;padding:8px 10px;margin-bottom:6px;cursor:pointer;font-size:13px}
+.slot:hover{border-color:var(--brand2)}
+.slot b{display:block;font-size:14px}
+.note{border-left:4px solid var(--info)}
+.note .hd{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px}
+.note dl{margin:0}
+.note dt{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:6px}
+.note dd{margin:2px 0 0;white-space:pre-wrap}
+.modal{position:fixed;inset:0;background:rgba(20,10,5,.5);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:30px 12px;overflow-y:auto}
+.modal.hidden{display:none}
+.sheet{background:var(--bg);border-radius:16px;width:100%;max-width:620px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.sheet h2{margin-top:0}
+.sheet .actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:6px}
+.sheet .actions .left{margin-right:auto}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
+#toast.show{opacity:1}
+#toast.err{background:var(--bad);color:#fff}
+.busy{position:fixed;top:0;left:0;height:3px;background:var(--gold);z-index:70;width:0;transition:width .4s}
+.busy.on{width:85%;transition:width 8s cubic-bezier(.1,.7,.2,1)}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:6px 12px;font-size:14px}
+.kv div:nth-child(odd){color:var(--muted)}
+.help{font-size:13px;color:var(--muted)}
+.welcome{max-width:620px}
+.calwrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--card);box-shadow:var(--shadow)}
+.cal{display:grid;grid-template-columns:56px repeat(7,minmax(112px,1fr));min-width:850px}
+.calcorner{border-bottom:1px solid var(--line);background:var(--soft)}
+.calday{padding:8px 8px 6px;border-bottom:1px solid var(--line);border-left:1px solid var(--line);background:var(--soft);font-size:14px}
+.calday .help{display:block;font-size:11px}
+.calday.today{background:var(--brand);color:#fff}
+.calday.today .help{color:rgba(255,255,255,.8)}
+.calday.today .extra span{background:rgba(255,255,255,.22);color:#fff}
+.calday .extra span{display:inline-block;font-size:11px;margin:3px 3px 0 0;padding:1px 6px;border-radius:6px;cursor:pointer;background:hsl(var(--h) 60% 50% / .18);color:var(--ink)}
+.caltimes{position:relative}
+.caltimes .hr{position:absolute;right:6px;font-size:11px;color:var(--muted);transform:translateY(-50%)}
+.caltimes .hr:first-child{transform:none}
+.calcol{position:relative;border-left:1px solid var(--line)}
+.calcol.today{background:rgba(200,150,62,.06)}
+.calcol .line{position:absolute;left:0;right:0;border-top:1px solid var(--line)}
+.calcol .line.half{border-top-style:dashed;opacity:.6}
+.calcol .now{position:absolute;left:0;right:0;border-top:2px solid var(--bad);z-index:3}
+.calcol .now::before{content:"";position:absolute;left:-4px;top:-5px;width:8px;height:8px;border-radius:50%;background:var(--bad)}
+.ev{position:absolute;z-index:2;overflow:hidden;cursor:pointer;border-radius:7px;padding:3px 6px;font-size:12px;line-height:1.25;background:hsl(var(--h) 65% 50% / .17);border-left:4px solid hsl(var(--h) 55% 45%);color:var(--ink)}
+.ev:hover{background:hsl(var(--h) 65% 50% / .3)}
+.ev b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev span{display:block;color:var(--muted);white-space:nowrap}
+.ev .st{font-weight:600;color:var(--ink)}
+.ev.done b::before{content:"\2713  ";color:var(--ok)}
+.ev.off{opacity:.5}
+.ev.off b{text-decoration:line-through}
+.ev.mu{border-left-style:dashed;outline:1px dashed hsl(var(--h) 55% 45% / .6)}
+.cal .ev{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;cursor:grab}
+.cal .ev.dragging{z-index:30;cursor:grabbing;box-shadow:0 8px 22px rgba(0,0,0,.28);opacity:.95;background:hsl(var(--h) 65% 88%);transition:none}
+.cal .ev.dragging span{color:var(--ink);font-weight:600}
+.calcol.droptarget{background:rgba(200,150,62,.12)}
+body.dragging-lesson{cursor:grabbing;-webkit-user-select:none;user-select:none}
+.lrow{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:4px 0;border-radius:9px;cursor:pointer;background:hsl(var(--h) 65% 50% / .12);border-left:4px solid hsl(var(--h) 55% 45%)}
+.lrow:hover{background:hsl(var(--h) 65% 50% / .22)}
+.lrow .lt{font-weight:700;min-width:72px;color:var(--brand)}
+.lrow .ln{font-weight:600;flex:1}
+@media (max-width:640px){
+  .grid2{grid-template-columns:1fr}
+  .lesson{grid-template-columns:70px 1fr}
+  h2{font-size:21px}
+  .top .sub{display:none}
+}
+@media (max-width:440px){ .top .sync{display:none} .top{gap:8px} .iconbtn{padding:8px 10px} }
+/* ---------- printing ---------- */
+#printArea{display:none}
+.pr{font:11pt/1.35 Inter,Arial,sans-serif;color:#000}
+.pr h1{font:700 18pt/1.2 Fraunces,Georgia,serif;margin:0 0 2px}
+.pr h2{font:700 14pt/1.2 Fraunces,Georgia,serif;margin:14px 0 6px}
+.pr h3{font:700 12pt/1.2 Fraunces,Georgia,serif;margin:12px 0 6px}
+.pr .prsub{color:#444;font-size:9.5pt;margin-bottom:10px}
+.pr table{width:100%;border-collapse:collapse;font-size:9.5pt;min-width:0!important}
+.pr th,.pr td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top;background:#fff!important;color:#000!important}
+.pr th{background:#eee!important;font-weight:700;text-transform:none;letter-spacing:0}
+.pr td.num,.pr th.num{text-align:right}
+.pr tr{break-inside:avoid}
+.pr .tablewrap{overflow:visible!important;box-shadow:none!important;border:0!important}
+.pr .card,.pr .stat{box-shadow:none!important;border:1px solid #999!important;background:#fff!important}
+.pr .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pr .stat .n{font-size:14pt}
+.pr a{color:#000;text-decoration:none}
+.pr .pill{border:1px solid #777;background:#fff!important;color:#000!important}
+.pr .mcal td{height:78px;width:14.28%;font-size:8pt;padding:3px}
+.pr .mcal td.out{background:#f3f3f3!important;color:#999!important}
+.pr .mcal .dn{font-weight:700;font-size:9pt;margin-bottom:2px}
+.pr .mcal .e{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pr .wk td{height:300px;font-size:8.5pt;width:14.28%}
+.pr .wk .e{margin-bottom:3px}
+.pr .off{text-decoration:line-through;color:#666}
+.pr .write{height:26px}
+.pr .pb{break-after:page}
+@media print{
+  html,body,main{background:#fff!important}
+  body.print-mode > *:not(#printArea){display:none!important}
+  body.print-mode #printArea{display:block}
+  body:not(.print-mode) .top, body:not(.print-mode) .tabs, body:not(.print-mode) .btn, body:not(.print-mode) #toast, body:not(.print-mode) .modal{display:none!important}
+  body:not(.print-mode) .tablewrap{overflow:visible!important}
+}
+</style>
+</head>
+<body>
+<div class="busy" id="busy"></div>
+<header class="top">
+  <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 6v10"/><path d="M26 16h12"/><path d="M24 22c-6 2-8 8-5 12 2 3 2 5 0 8-3 5 1 14 13 14s16-9 13-14c-2-3-2-5 0-8 3-4 1-10-5-12"/><path d="M27 34c1 2 1 4 0 6M37 34c-1 2-1 4 0 6"/><path d="M32 22v26"/></g></svg>
+  <div>
+    <h1 id="studioName">Violin Studio</h1>
+    <div class="sub" id="todayLine"></div>
+  </div>
+  <div class="spacer"></div>
+  <span class="sync" id="sync"></span>
+  <button class="iconbtn" id="printBtn" title="Print this page">Print</button>
+  <button class="iconbtn" id="refreshBtn" title="Reload from Google Sheet">Refresh</button>
+</header>
+<nav class="tabs" id="tabs"></nav>
+<main id="view"></main>
+<div class="modal hidden" id="modal"><div class="sheet" id="sheet"></div></div>
+<div id="toast"></div>
+<div id="printArea"></div>
+
+<script>
+/* =====================================================================
+   VIOLIN STUDIO  -  front end (talks to your Google Apps Script web app)
+   ===================================================================== */
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const ATT = ['Attended','Canceled by Student','Canceled by Teacher','No-Show','Make-Up Lesson'];
+const METHODS = ['Cash','Check','Venmo','PayPal','Zelle','Card','Other'];
+const EXPENSE_CATS = ['Instrument repair & maintenance','Strings, rosin & supplies','Sheet music & books','Instruments & equipment','Software & subscriptions','Website & domains','Advertising & marketing','Phone & internet','Workshops & continuing education','Professional dues & memberships','Studio rent','Office supplies & printing','Recitals & events','Parking, tolls & travel','Insurance','Bank & payment fees','Other'];
+
+const store = {
+  get(k){ try { return localStorage.getItem(k) || ''; } catch(e){ return ''; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+};
+const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbx4uVSRYL9kKOEJFDvy593xzi7WvDf6zJVZe08Eu2pGqazApEqvpHRCITA8ute8egHqLQ/exec';
+const cfg = { url: store.get('vs_url') || DEFAULT_URL, key: store.get('vs_key') };
+
+let DATA = null;
+let VIEW = store.get('vs_view') || 'today';
+const UI = { day: todayStr(), studentQ: '', attStudent: '', attMonth: todayStr().slice(0,7), muStatus: 'Open', noteStudent: '', showInactive: false, payQ: '', payStudent: '', payMonth: '', payMethod: '', mileYear: todayStr().slice(0,4), mileStudent: '', expYear: todayStr().slice(0,4), expCat: '', expQ: '' };
+
+const VIEWS = [
+  ['today','Today'],['students','Students'],['schedule','Calendar'],['attendance','Attendance'],
+  ['payments','Payments'],['mileage','Mileage'],['expenses','Expenses'],['makeups','Make-Ups'],['notes','Lesson Notes'],['settings','Settings']
+];
+
+const FIELDS = {
+  'Students': [
+    {k:'Student Name', req:1}, {k:'Parent Name'},
+    {k:'Phone', t:'tel'}, {k:'Email', t:'email'},
+    {k:'Address', wide:1},
+    {k:'Billing Type', t:'select', o:['Per Lesson','Monthly']}, {k:'Lesson Rate', t:'number', label:'Rate ($ per lesson, or per month if Monthly)'},
+    {k:'Status', t:'select', o:['Active','Paused','Waitlist','Inactive']}, {k:'Start Date', t:'date'},
+    {k:'Miles Per Lesson', t:'number', label:'Miles per lesson (for taxes, leave blank if none)'},
+    {k:'Notes', t:'textarea', wide:1}
+  ],
+  'Schedule': [
+    {k:'Student ID', t:'student', req:1, label:'Student', wide:1},
+    {k:'Day', t:'select', o:DAYS, req:1}, {k:'Time', t:'time', req:1},
+    {k:'Length (min)', t:'number', label:'Lesson length (minutes)'}, {k:'Location'},
+    {k:'Notes', t:'textarea', wide:1}
+  ],
+  'Attendance': [
+    {k:'Date', t:'date', req:1}, {k:'Student ID', t:'student', req:1, label:'Student'},
+    {k:'Status', t:'select', o:ATT, req:1}, {k:'Payment Owed', t:'select', o:['Yes','No']},
+    {k:'Amount Charged', t:'number', label:'Amount charged ($)'}, {k:'Make-Up Owed', t:'select', o:['No','Yes']},
+    {k:'Notes', t:'textarea', wide:1}
+  ],
+  'Payments': [
+    {k:'Date', t:'date', req:1}, {k:'Student ID', t:'student', req:1, label:'Student'},
+    {k:'Amount', t:'number', req:1, label:'Amount paid ($)'}, {k:'Method', t:'select', o:METHODS},
+    {k:'For', label:'For (e.g. October lessons)', wide:1}, {k:'Notes', t:'textarea', wide:1}
+  ],
+  'Charges': [
+    {k:'Date', t:'date', req:1}, {k:'Student ID', t:'student', req:1, label:'Student'},
+    {k:'Description', req:1, label:'Description (tuition, book, recital fee)'}, {k:'Amount', t:'number', req:1, label:'Amount ($)'},
+    {k:'Notes', t:'textarea', wide:1}
+  ],
+  'Make-Ups': [
+    {k:'Student ID', t:'student', req:1, label:'Student', wide:1},
+    {k:'Missed Date', t:'date'}, {k:'Reason'},
+    {k:'Status', t:'select', o:['Owed','Scheduled','Completed','Forfeited']}, {k:'Scheduled Date', t:'date'},
+    {k:'Scheduled Time', t:'time'}, {k:'Notes', t:'textarea', wide:1}
+  ],
+  'Mileage': [
+    {k:'Date', t:'date', req:1}, {k:'Student ID', t:'student', label:'Student (optional)'},
+    {k:'Miles', t:'number', req:1}, {k:'Rate', t:'number', label:'Rate per mile ($)'},
+    {k:'Purpose', wide:1, req:1}, {k:'Notes', t:'textarea', wide:1}
+  ],
+  'Expenses': [
+    {k:'Date', t:'date', req:1}, {k:'Amount', t:'number', req:1, label:'Amount paid ($)'},
+    {k:'Paid To', req:1, label:'Paid to (store or person)'}, {k:'Category', t:'select', o:EXPENSE_CATS, req:1},
+    {k:'Description', wide:1, label:'What it was for (e.g. bow rehair)'},
+    {k:'Business Use %', t:'number', label:'Business use % (100 if only for teaching)'}, {k:'Method', t:'select', o:METHODS},
+    {k:'Receipt Link', t:'url', wide:1, label:'Receipt link (optional, e.g. a Google Drive photo)'},
+    {k:'Notes', t:'textarea', wide:1}
+  ],
+  'Lesson Notes': [
+    {k:'Date', t:'date', req:1}, {k:'Student ID', t:'student', req:1, label:'Student'},
+    {k:'Current Piece', wide:1},
+    {k:'What We Worked On', t:'textarea', wide:1},
+    {k:'Practice Next', t:'textarea', wide:1, label:'What to practice next'},
+    {k:'Notes', t:'textarea', wide:1, label:'Other notes'}
+  ]
+};
+const ID_KEY = {'Students':'Student ID','Schedule':'Schedule ID','Attendance':'Record ID','Payments':'Payment ID','Charges':'Charge ID','Make-Ups':'Make-Up ID','Lesson Notes':'Note ID','Mileage':'Trip ID','Expenses':'Expense ID'};
+const SINGULAR = {'Students':'Student','Schedule':'Lesson Time','Attendance':'Lesson Record','Payments':'Payment','Charges':'Charge','Make-Ups':'Make-Up','Lesson Notes':'Lesson Note','Mileage':'Mileage Trip','Expenses':'Business Expense'};
+
+/* ---------------- small helpers ---------------- */
+const $ = s => document.querySelector(s);
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function pad(n){ return String(n).padStart(2,'0'); }
+function todayStr(){ const d = new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function dateObj(s){ return new Date(s + 'T12:00:00'); }
+function fmtDate(s, withYear){ if(!s) return ''; const d = dateObj(s); if(isNaN(d)) return esc(s); return d.toLocaleDateString(undefined, withYear ? {month:'short',day:'numeric',year:'numeric'} : {weekday:'short',month:'short',day:'numeric'}); }
+function money(n){ const v = Number(n)||0; return (v<0?'-':'') + '$' + Math.abs(v).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function num(n){ const v = Number(n); return isNaN(v) ? 0 : v; }
+function to24(t){ if(!t) return ''; const m = String(t).trim().match(/^(\d{1,2}):(\d{2})\s*([AaPp][Mm])?$/); if(!m) return ''; let h = +m[1]; const ap = (m[3]||'').toUpperCase(); if(ap==='PM' && h<12) h+=12; if(ap==='AM' && h===12) h=0; return pad(h)+':'+m[2]; }
+function to12(t){ if(!t) return ''; const [h,m] = t.split(':').map(Number); const ap = h>=12 ? 'PM' : 'AM'; return ((h%12)||12)+':'+pad(m)+' '+ap; }
+function mins(t){ const v = to24(t); if(!v) return 9999; const [h,m] = v.split(':').map(Number); return h*60+m; }
+function monthLabel(ym){ const [y,m] = ym.split('-').map(Number); return new Date(y,m-1,1).toLocaleDateString(undefined,{month:'long',year:'numeric'}); }
+function setting(k, fallback){ const v = DATA && DATA.Settings ? DATA.Settings[k] : ''; return (v === '' || v == null) ? fallback : v; }
+
+function toast(msg, err){ const t = $('#toast'); t.textContent = msg; t.className = err ? 'show err' : 'show'; clearTimeout(toast._t); toast._t = setTimeout(()=> t.className = '', err ? 5000 : 2200); }
+function busy(on){ $('#busy').className = on ? 'busy on' : 'busy'; if(!on){ $('#busy').style.width='100%'; setTimeout(()=>{$('#busy').style.width='';},250);} }
+
+/* ---------------- data lookups ---------------- */
+function rows(tab){ return (DATA && DATA[tab]) || []; }
+function student(id){ return rows('Students').find(s => s['Student ID'] === id); }
+function sName(id){ const s = student(id); return s ? s['Student Name'] : id; }
+function activeStudents(){ return rows('Students').filter(s => s['Status'] === 'Active'); }
+function sortedStudents(){ return rows('Students').slice().sort((a,b)=> String(a['Student Name']).localeCompare(String(b['Student Name']))); }
+function ledger(id){
+  const lessons = rows('Attendance').filter(r => r['Student ID']===id).reduce((a,r)=> a + num(r['Amount Charged']), 0);
+  const other = rows('Charges').filter(r => r['Student ID']===id).reduce((a,r)=> a + num(r['Amount']), 0);
+  const paid = rows('Payments').filter(r => r['Student ID']===id).reduce((a,r)=> a + num(r['Amount']), 0);
+  return { lessons, other, paid, balance: lessons + other - paid };
+}
+function openMakeups(id){ return rows('Make-Ups').filter(m => (!id || m['Student ID']===id) && (m['Status']==='Owed' || m['Status']==='Scheduled')); }
+function scheduleFor(id){ return rows('Schedule').filter(r => r['Student ID']===id).sort((a,b)=> DAYS.indexOf(a['Day'])-DAYS.indexOf(b['Day']) || mins(a['Time'])-mins(b['Time'])); }
+function latestNote(id){ return rows('Lesson Notes').filter(n => n['Student ID']===id).sort((a,b)=> String(b['Date']).localeCompare(String(a['Date'])))[0]; }
+function balClass(b){ return b > 0.004 ? 'owe' : (b < -0.004 ? 'credit' : ''); }
+function statusPill(s){
+  const map = {'Attended':'ok','Make-Up Lesson':'info','Canceled by Student':'warn','Canceled by Teacher':'purple','No-Show':'bad','Owed':'warn','Scheduled':'info','Completed':'ok','Forfeited':'','Active':'ok','Paused':'warn','Waitlist':'info','Inactive':''};
+  return '<span class="pill '+(map[s]||'')+'">'+esc(s||'')+'</span>';
+}
+function lessonDefaults(studentId, status){
+  const s = student(studentId) || {};
+  const owed = (status==='Canceled by Teacher' || status==='Make-Up Lesson') ? 'No' : 'Yes';
+  const makeup = status==='Canceled by Teacher' ? 'Yes' : 'No';
+  const perLesson = s['Billing Type'] !== 'Monthly';
+  const amount = (owed==='Yes' && perLesson) ? num(s['Lesson Rate']) : 0;
+  return { 'Payment Owed': owed, 'Make-Up Owed': makeup, 'Amount Charged': amount };
+}
+
+/* ---------------- API ---------------- */
+async function apiGet(){
+  const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), 45000);
+  let j;
+  try{
+    const r = await fetch(cfg.url + '?action=getAll&key=' + encodeURIComponent(cfg.key), { signal: ctl.signal });
+    j = await r.json();
+  }catch(e){
+    if(e.name === 'AbortError') throw new Error('Google is taking too long to answer. Tap Try again in a minute.');
+    throw e;
+  }finally{ clearTimeout(timer); }
+  if(!j.ok) throw new Error(j.error || 'Could not load data');
+  return j.data;
+}
+async function apiPost(payload){
+  payload.key = cfg.key;
+  busy(true);
+  try{
+    const r = await fetch(cfg.url, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(payload) });
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.error || 'Save failed');
+    DATA = j.data;
+    cacheSave();
+    stamp();
+    return j.result;
+  } finally { busy(false); }
+}
+/* Saved copy: the site shows your last data instantly, then quietly refreshes from Google. */
+function cacheSave(){ try{ if(DATA && cfg.key) localStorage.setItem('vs_cache', JSON.stringify({k: cfg.key, t: Date.now(), data: DATA})); }catch(e){} }
+function cacheLoad(){ try{ const c = JSON.parse(localStorage.getItem('vs_cache') || 'null'); return (c && c.k === cfg.key && c.data) ? c : null; }catch(e){ return null; } }
+// Re-draw the page, but never yank a box out from under you while you are typing in it.
+function safeRender(){
+  const a = document.activeElement;
+  if(a && $('#view').contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)){ safeRender.pending = true; return; }
+  if(typeof DRAG !== 'undefined' && DRAG && DRAG.started){ safeRender.pending = true; return; }
+  safeRender.pending = false; render();
+}
+async function load(quiet){
+  if(!cfg.url || !cfg.key){ VIEW = 'settings'; render(); return; }
+  const hadData = !!DATA;
+  busy(true); $('#sync').textContent = hadData ? 'Updating...' : 'Loading...';
+  try{
+    DATA = await apiGet();
+    cacheSave();
+    stamp();
+    if(!quiet) toast('Up to date');
+  }catch(e){
+    $('#sync').textContent = hadData ? 'Showing saved copy' : 'Not connected';
+    if(!(quiet && hadData)) toast(e.message === 'Failed to fetch' ? 'Could not reach your Google script. Check the URL in Settings.' : e.message, true);
+  }finally{ load.tried = true; busy(false); if(hadData) safeRender(); else render(); }
+  if(DATA) syncInbox();
+}
+
+/* ---------------- AUTO-SYNC FROM CLAUDE ----------------
+   Claude writes what Bruce tells it into inbox.json in this GitHub repo.
+   No names are stored there: each item has a student ID plus a 3-letter
+   check code (first 3 hex characters of SHA-256 of the lowercase name).
+   Every time the site loads, new items are saved to the Google Sheet.
+   Each saved record gets a tag like [L-20261012-1#l0] in its Notes so
+   it is never added twice, on any device. */
+let SYNCING = false;
+async function nameCheck(name){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(name||'').trim().toLowerCase()));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('').slice(0,3);
+}
+async function resolveStudent(sid, chk){
+  const hits = [];
+  for(const s of rows('Students')){ if(await nameCheck(s['Student Name']) === chk) hits.push(s); }
+  if(hits.length === 1) return hits[0];
+  if(hits.length > 1) return hits.find(s => s['Student ID'] === sid) || null;
+  return null;
+}
+function tagUsed(tag){
+  return ['Attendance','Payments','Charges','Make-Ups','Lesson Notes','Students','Schedule'].some(t => rows(t).some(r => String(r['Notes']||'').includes(tag)));
+}
+function withTag(notes, tag){ return (notes ? String(notes) + ' ' : '') + tag; }
+async function applyInboxItem(kind, x, st, day, tag){
+  const sid = st['Student ID'];
+  if(kind === 'lesson'){
+    const status = ATT.includes(x.status) ? x.status : 'Attended';
+    const d = lessonDefaults(sid, status);
+    if(x.charge != null && x.charge !== ''){ d['Amount Charged'] = Number(x.charge); d['Payment Owed'] = Number(x.charge) > 0 ? 'Yes' : 'No'; }
+    if(x.makeup === true) d['Make-Up Owed'] = 'Yes'; if(x.makeup === false) d['Make-Up Owed'] = 'No';
+    const mu = status === 'Make-Up Lesson' ? openMakeups(sid)[0] : null;
+    return apiPost({action:'logLesson', record:Object.assign({'Date':x.date||day,'Student ID':sid,'Status':status,'Notes':withTag(x.notes,tag)}, d), makeupId: mu ? mu['Make-Up ID'] : ''});
+  }
+  if(kind === 'payment') return apiPost({action:'add', tab:'Payments', record:{'Date':x.date||day,'Student ID':sid,'Amount':Number(x.amount)||0,'Method':METHODS.includes(x.method)?x.method:(x.method?'Other':''),'For':x.for||'','Notes':withTag(x.notes,tag)}});
+  if(kind === 'charge') return apiPost({action:'add', tab:'Charges', record:{'Date':x.date||day,'Student ID':sid,'Description':x.description||'Charge','Amount':Number(x.amount)||0,'Notes':withTag(x.notes,tag)}});
+  if(kind === 'note') return apiPost({action:'add', tab:'Lesson Notes', record:{'Date':x.date||day,'Student ID':sid,'Current Piece':x.piece||'','What We Worked On':x.workedOn||'','Practice Next':x.practice||'','Notes':withTag(x.notes,tag)}});
+  if(kind === 'makeup'){
+    const rec = {'Status':x.status||'Owed','Scheduled Date':x.scheduledDate||'','Scheduled Time':x.scheduledTime||'','Notes':withTag(x.notes,tag)};
+    const open = openMakeups(sid)[0];
+    if(open && !x.missedDate) return apiPost({action:'update', tab:'Make-Ups', id:open['Make-Up ID'], record:rec});
+    return apiPost({action:'add', tab:'Make-Ups', record:Object.assign({'Student ID':sid,'Missed Date':x.missedDate||'','Reason':x.reason||''}, rec)});
+  }
+}
+async function decryptItem(b64){
+  const k = DATA && DATA.Settings ? DATA.Settings['Sync Key'] : '';
+  if(!k) return null;
+  try{
+    const raw = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const kb = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(k).trim()));
+    const key = await crypto.subtle.importKey('raw', kb, 'AES-GCM', false, ['decrypt']);
+    const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv: raw.slice(0,12)}, key, raw.slice(12));
+    return JSON.parse(new TextDecoder().decode(pt));
+  }catch(e){ return null; }
+}
+async function addStudentFromInbox(x, tag, day){
+  let st = findStudentByName(x.name);
+  if(!st){
+    await apiPost({action:'add', tab:'Students', record:{'Student Name':x.name,'Parent Name':x.parent||'','Phone':x.phone||'','Email':x.email||'','Billing Type':x.billing||'Per Lesson','Lesson Rate':x.rate!=null?x.rate:Math.round((Number(x.length)||30)*25/30*100)/100,'Status':x.status||'Active','Start Date':x.start||day,'Notes':withTag(x.notes,tag)}});
+    st = findStudentByName(x.name);
+  }
+  if(st && x.day && x.time && !scheduleFor(st['Student ID']).some(r => r['Day']===x.day)){
+    await apiPost({action:'add', tab:'Schedule', record:{'Student ID':st['Student ID'],'Day':x.day,'Time':x.time,'Length (min)':Number(x.length)||30,'Location':'','Notes':tag}});
+  }
+}
+async function applySchedule(x, st, tag){
+  const sid = st['Student ID'];
+  const slots = scheduleFor(sid);
+  if(x.remove){
+    for(const r of slots.filter(r => !x.day || r['Day']===x.day)) await apiPost({action:'delete', tab:'Schedule', id:r['Schedule ID']});
+    if(x.status) await apiPost({action:'update', tab:'Students', id:sid, record:{'Status':x.status}});
+    return;
+  }
+  if(x.status) await apiPost({action:'update', tab:'Students', id:sid, record:{'Status':x.status}});
+  if(!x.day) return;
+  const target = slots.find(r => r['Day']===(x.fromDay||x.day)) || (slots.length===1 && !x.add ? slots[0] : null);
+  const rec = {'Day':x.day,'Time':x.time||(target?target['Time']:''),'Length (min)':Number(x.length)||(target?lenOf(target):30)};
+  if(target) return apiPost({action:'update', tab:'Schedule', id:target['Schedule ID'], record:Object.assign(rec,{'Notes':withTag(cn(target['Notes']),tag)})});
+  return apiPost({action:'add', tab:'Schedule', record:Object.assign(rec,{'Student ID':sid,'Location':'','Notes':tag})});
+}
+const INBOX_KINDS = [['student','students','S'],['schedule','schedule','H'],['lesson','lessons','l'],['payment','payments','p'],['charge','charges','c'],['note','notes','n'],['makeup','makeups','m']];
+async function syncInbox(){
+  if(SYNCING || !DATA) return;
+  SYNCING = true;
+  let added = 0, waiting = 0;
+  try{
+    const r = await fetch('inbox.json?t=' + Date.now(), {cache:'no-store'});
+    if(!r.ok) return;
+    const inbox = await r.json();
+    for(const e of (inbox.entries || [])){
+      const day = e.date || todayStr();
+      for(const [kind, key, code] of INBOX_KINDS){
+        const list = e[key] || [];
+        for(let i = 0; i < list.length; i++){
+          const tag = '[' + e.id + '#' + code + i + ']';
+          if(tagUsed(tag)) continue;
+          let x = list[i];
+          if(x.enc){ x = await decryptItem(x.enc); if(!x){ waiting++; continue; } }
+          if(kind === 'student'){ await addStudentFromInbox(x, tag, day); added++; continue; }
+          const st = x.name ? findStudentByName(x.name) : await resolveStudent(x.sid, x.chk);
+          if(!st){ waiting++; continue; }
+          if(kind === 'schedule') await applySchedule(x, st, tag);
+          else await applyInboxItem(kind, x, st, day, tag);
+          added++;
+        }
+      }
+    }
+  }catch(err){ if(added) toast('Saved '+added+' items from Claude, then stopped: '+err.message, true); }
+  finally{
+    SYNCING = false;
+    if(added){ toast('Added ' + added + ' update' + (added===1?'':'s') + ' from Claude'); render(); }
+    else if(waiting) $('#sync').textContent = 'Waiting on ' + waiting + ' item' + (waiting===1?'':'s') + ' from Claude';
+  }
+}
+function cn(s){ return String(s||'').replace(/\s*\[L-[^\]]*\]/g, ''); }
+function stamp(){ $('#sync').textContent = 'Synced ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}); }
+
+/* ---------------- shell ---------------- */
+function renderTabs(){
+  $('#tabs').innerHTML = VIEWS.map(([k,l]) => '<button data-view="'+k+'" class="'+(k===VIEW?'on':'')+'">'+l+'</button>').join('');
+}
+function render(){
+  renderTabs();
+  $('#studioName').textContent = setting('Studio Name','Violin Studio');
+  $('#todayLine').textContent = new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+  document.title = setting('Studio Name','Violin Studio');
+  if(!DATA && VIEW !== 'settings'){
+    $('#view').innerHTML = load.tried ? '<div class="card empty">Could not load your studio yet.<br><br><button class="btn" data-view="settings">Check Settings</button> <button class="btn primary" data-act="retry">Try again</button></div>' : '<div class="empty">Loading your studio...</div>';
+    return;
+  }
+  const fn = { today:vToday, students:vStudents, schedule:vSchedule, attendance:vAttendance, payments:vPayments, mileage:vMileage, expenses:vExpenses, makeups:vMakeups, notes:vNotes, settings:vSettings }[VIEW] || vToday;
+  $('#view').innerHTML = fn();
+  afterRender();
+}
+function go(v){ VIEW = v; store.set('vs_view', v); render(); window.scrollTo(0,0); }
+
+function table(cols, list, tab, emptyMsg){
+  if(!list.length) return '<div class="card empty">'+(emptyMsg||'Nothing here yet.')+'</div>';
+  return '<div class="tablewrap"><table><thead><tr>' + cols.map(c => '<th class="'+(c.cls||'')+'">'+c.h+'</th>').join('') + '</tr></thead><tbody>' +
+    list.map(r => '<tr class="click" data-edit="'+esc(tab)+'" data-id="'+esc(r[ID_KEY[tab]])+'">' + cols.map(c => '<td class="'+(c.cls||'')+'">'+c.v(r)+'</td>').join('') + '</tr>').join('') +
+    '</tbody></table></div>';
+}
+function studentOptions(selected, includeAll){
+  const list = sortedStudents().filter(s => s['Status']!=='Inactive' || s['Student ID']===selected);
+  return (includeAll ? '<option value="">All students</option>' : '<option value="">Choose a student</option>') +
+    list.map(s => '<option value="'+esc(s['Student ID'])+'" '+(s['Student ID']===selected?'selected':'')+'>'+esc(s['Student Name'])+(s['Status']!=='Active'?' ('+esc(s['Status'])+')':'')+'</option>').join('');
+}
+
+/* ---------------- TODAY ---------------- */
+function vToday(){
+  const day = UI.day;
+  const weekday = DAYS[dateObj(day).getDay()];
+  const slots = rows('Schedule').filter(r => r['Day']===weekday && (student(r['Student ID'])||{})['Status']==='Active')
+    .sort((a,b)=> mins(a['Time'])-mins(b['Time']));
+  const mus = rows('Make-Ups').filter(m => m['Scheduled Date']===day && m['Status']==='Scheduled');
+  const owedTotal = rows('Students').reduce((a,s)=> { const b = ledger(s['Student ID']).balance; return a + (b>0?b:0); }, 0);
+  const ym = day.slice(0,7);
+  const collected = rows('Payments').filter(p => String(p['Date']).slice(0,7)===ym).reduce((a,p)=> a + num(p['Amount']), 0);
+  const isToday = day === todayStr();
+
+  let h = '<div class="row between"><h2>'+(isToday ? 'Today' : esc(weekday))+' <span class="muted" style="font-size:16px;font-family:Inter">'+fmtDate(day,true)+'</span></h2>' +
+    '<div class="row"><button class="btn small" data-act="dayShift" data-n="-1">&larr; Prev</button><input type="date" id="dayPick" value="'+day+'" style="width:auto"><button class="btn small" data-act="dayShift" data-n="1">Next &rarr;</button>'+(isToday?'':'<button class="btn small" data-act="dayToday">Today</button>')+'</div></div>';
+
+  h += '<div class="card row between" style="margin-bottom:14px;background:var(--soft)"><div><b>Told Claude about your day?</b><div class="help">Paste the block Claude gave you and everything gets saved at once.</div></div><button class="btn primary" data-act="importDay">Paste from Claude</button></div>';
+
+  h += '<div class="stats">' +
+    '<div class="card stat"><div class="n">'+(slots.length+mus.length)+'</div><div class="l">Lessons this day</div></div>' +
+    '<div class="card stat"><div class="n owe">'+money(owedTotal)+'</div><div class="l">Total owed to you</div></div>' +
+    '<div class="card stat"><div class="n">'+openMakeups().length+'</div><div class="l">Make-ups owed</div></div>' +
+    '<div class="card stat"><div class="n credit">'+money(collected)+'</div><div class="l">Paid in '+esc(monthLabel(ym).split(' ')[0])+'</div></div>' +
+  '</div>';
+
+  if(!slots.length && !mus.length){
+    h += '<div class="card empty">No lessons on the schedule for '+esc(weekday)+'s. <br><br><button class="btn" data-act="go" data-v="schedule">Open the schedule</button></div>';
+  }
+  const items = slots.map(s => ({type:'regular', time:s['Time'], s})).concat(mus.map(m => ({type:'makeup', time:m['Scheduled Time'], m})))
+    .sort((a,b)=> mins(a.time)-mins(b.time));
+
+  items.forEach(it => {
+    const sid = it.type==='regular' ? it.s['Student ID'] : it.m['Student ID'];
+    const st = student(sid) || {};
+    const logged = rows('Attendance').find(a => a['Date']===day && a['Student ID']===sid && (it.type==='makeup' ? a['Status']==='Make-Up Lesson' : a['Status']!=='Make-Up Lesson'));
+    const bal = ledger(sid).balance;
+    const ln = latestNote(sid);
+    h += '<div class="card lesson"><div><div class="time">'+esc(it.time||'')+'</div><div class="len">'+(it.type==='regular' ? esc(it.s['Length (min)']||setting('Default Lesson Length (min)',30))+' min' : 'Make-up')+'</div></div><div>' +
+      '<div class="row between"><div class="name"><a href="#" data-act="student" data-id="'+esc(sid)+'" style="color:inherit;text-decoration:none">'+esc(st['Student Name']||sid)+'</a></div>' +
+      (logged ? '<div>'+statusPill(logged['Status'])+' <button class="btn small" data-edit="Attendance" data-id="'+esc(logged['Record ID'])+'">Edit</button></div>' : (it.type==='makeup' ? '<span class="pill purple">Make-up lesson</span>' : '')) + '</div>' +
+      '<div class="meta">'+(st['Parent Name'] ? 'Parent: '+esc(st['Parent Name'])+' &middot; ' : '')+(bal>0.004 ? '<span class="owe">Owes '+money(bal)+'</span>' : (bal<-0.004 ? '<span class="credit">Credit '+money(-bal)+'</span>' : 'Paid up')) +
+      (ln && ln['Current Piece'] ? ' &middot; Working on: <b>'+esc(ln['Current Piece'])+'</b>' : '') + '</div>';
+    if(!logged){
+      if(it.type==='regular'){
+        h += '<div class="row">' +
+          '<button class="btn small ok" data-act="log" data-sid="'+esc(sid)+'" data-s="Attended">Attended</button>' +
+          '<button class="btn small warn" data-act="logForm" data-sid="'+esc(sid)+'" data-s="Canceled by Student">Student canceled</button>' +
+          '<button class="btn small info" data-act="logForm" data-sid="'+esc(sid)+'" data-s="Canceled by Teacher">I canceled</button>' +
+          '<button class="btn small bad" data-act="log" data-sid="'+esc(sid)+'" data-s="No-Show">No-show</button>' +
+          '<button class="btn small" data-act="note" data-sid="'+esc(sid)+'">Add note</button></div>';
+      } else {
+        h += '<div class="row"><button class="btn small ok" data-act="muDone" data-mu="'+esc(it.m['Make-Up ID'])+'" data-sid="'+esc(sid)+'">Make-up done</button>' +
+          '<button class="btn small" data-edit="Make-Ups" data-id="'+esc(it.m['Make-Up ID'])+'">Reschedule</button>' +
+          '<button class="btn small" data-act="note" data-sid="'+esc(sid)+'">Add note</button></div>';
+      }
+    } else {
+      h += '<div class="row"><button class="btn small" data-act="note" data-sid="'+esc(sid)+'">Add note</button>' +
+        (bal>0.004 ? '<button class="btn small" data-act="pay" data-sid="'+esc(sid)+'">Record payment</button>' : '') + '</div>';
+    }
+    h += '</div></div>';
+  });
+
+  const owedList = openMakeups().filter(m => m['Status']==='Owed');
+  if(owedList.length){
+    h += '<h3>Make-ups still to schedule</h3>' + table([
+      {h:'Student', v:r=> esc(r['Student Name'])},
+      {h:'Missed', v:r=> fmtDate(r['Missed Date'])},
+      {h:'Reason', v:r=> esc(r['Reason'])}
+    ], owedList, 'Make-Ups');
+  }
+  return h;
+}
+
+/* ---------------- STUDENTS ---------------- */
+function vStudents(){
+  const q = UI.studentQ.toLowerCase();
+  let list = sortedStudents().filter(s => UI.showInactive || s['Status']!=='Inactive')
+    .filter(s => !q || [s['Student Name'],s['Parent Name'],s['Email'],s['Phone']].join(' ').toLowerCase().includes(q));
+  let h = '<div class="row between"><h2>Students <span class="muted" style="font-size:16px;font-family:Inter">'+activeStudents().length+' active</span></h2><button class="btn primary" data-act="add" data-tab="Students">+ Add student</button></div>';
+  h += '<div class="filters"><input type="search" id="studentQ" placeholder="Search name, parent, phone, email" value="'+esc(UI.studentQ)+'"><label class="row" style="gap:6px"><input type="checkbox" id="showInactive" '+(UI.showInactive?'checked':'')+'> Show inactive students</label></div>';
+  if(!list.length) return h + '<div class="card empty">No students yet. Click <b>Add student</b> to start your roster.</div>';
+  h += '<div class="tablewrap"><table><thead><tr><th>Student</th><th>Parent</th><th>Contact</th><th>Lesson</th><th class="num">Rate</th><th class="num">Balance</th><th>Status</th></tr></thead><tbody>';
+  list.forEach(s => {
+    const id = s['Student ID'];
+    const b = ledger(id).balance;
+    const sch = scheduleFor(id).map(r => esc(r['Day'].slice(0,3))+' '+esc(r['Time'])).join('<br>') || '<span class="muted">Not scheduled</span>';
+    h += '<tr class="click" data-act="student" data-id="'+esc(id)+'"><td><b>'+esc(s['Student Name'])+'</b>'+(openMakeups(id).length?'<br><span class="pill warn">'+openMakeups(id).length+' make-up</span>':'')+'</td><td>'+esc(s['Parent Name'])+'</td>' +
+      '<td>'+(s['Phone']?'<a href="tel:'+esc(s['Phone'])+'" data-stop>'+esc(s['Phone'])+'</a><br>':'')+(s['Email']?'<a href="mailto:'+esc(s['Email'])+'" data-stop>'+esc(s['Email'])+'</a>':'')+'</td>' +
+      '<td>'+sch+'</td><td class="num">'+money(s['Lesson Rate'])+'<br><span class="muted">'+esc(s['Billing Type']||'Per Lesson')+'</span></td>' +
+      '<td class="num '+balClass(b)+'">'+money(b)+'</td><td>'+statusPill(s['Status'])+'</td></tr>';
+  });
+  return h + '</tbody></table></div>';
+}
+
+function studentDetail(id){
+  const s = student(id); if(!s) return;
+  const L = ledger(id);
+  const sch = scheduleFor(id);
+  const notes = rows('Lesson Notes').filter(n => n['Student ID']===id).sort((a,b)=> String(b['Date']).localeCompare(String(a['Date']))).slice(0,3);
+  const att = rows('Attendance').filter(a => a['Student ID']===id).sort((a,b)=> String(b['Date']).localeCompare(String(a['Date']))).slice(0,6);
+  const pays = rows('Payments').filter(p => p['Student ID']===id).sort((a,b)=> String(b['Date']).localeCompare(String(a['Date']))).slice(0,4);
+  const mus = openMakeups(id);
+  let h = '<div class="row between"><h2 style="margin:0">'+esc(s['Student Name'])+'</h2>'+statusPill(s['Status'])+'</div>';
+  h += '<div class="card" style="margin-top:12px"><div class="kv">' +
+    '<div>Parent</div><div>'+esc(s['Parent Name']||'')+'</div>' +
+    '<div>Phone</div><div>'+(s['Phone']?'<a href="tel:'+esc(s['Phone'])+'">'+esc(s['Phone'])+'</a>':'')+'</div>' +
+    '<div>Email</div><div>'+(s['Email']?'<a href="mailto:'+esc(s['Email'])+'">'+esc(s['Email'])+'</a>':'')+'</div>' +
+    (s['Address'] ? '<div>Address</div><div>'+esc(s['Address'])+'</div>' : '') +
+    '<div>Billing</div><div>'+money(s['Lesson Rate'])+' '+(s['Billing Type']==='Monthly'?'per month':'per lesson')+'</div>' +
+    '<div>Lessons</div><div>'+(sch.map(r => esc(r['Day'])+' '+esc(r['Time'])+' ('+esc(r['Length (min)']||setting('Default Lesson Length (min)',30))+' min)').join('<br>') || 'Not scheduled')+'</div>' +
+    '<div>Mileage</div><div><span class="row" style="gap:8px;flex-wrap:wrap"><input id="studentMiles" type="number" min="0" step="0.1" inputmode="decimal" data-sid="'+esc(id)+'" value="'+esc(s['Miles Per Lesson']===''||s['Miles Per Lesson']==null?'':s['Miles Per Lesson'])+'" placeholder="none" style="width:90px"> miles per lesson <button class="btn small" data-act="saveMiles" data-sid="'+esc(id)+'">Save</button></span>' +
+      (function(){ const yr = todayStr().slice(0,4), m = milesFor(id, yr); return m.trips ? '<div class="muted" style="margin-top:4px">'+yr+': '+fmtMiles(m.miles)+' miles, '+money(m.ded)+' deduction</div>' : ''; })() + '</div>' +
+    (s['Notes'] ? '<div>Notes</div><div>'+esc(s['Notes'])+'</div>' : '') +
+  '</div></div>';
+  h += '<div class="stats" style="margin-top:12px">' +
+    '<div class="card stat"><div class="n">'+money(L.lessons + L.other)+'</div><div class="l">Charged</div></div>' +
+    '<div class="card stat"><div class="n credit">'+money(L.paid)+'</div><div class="l">Paid</div></div>' +
+    '<div class="card stat"><div class="n '+balClass(L.balance)+'">'+money(L.balance)+'</div><div class="l">'+(L.balance<0?'Credit':'Balance')+'</div></div>' +
+    '<div class="card stat"><div class="n">'+mus.length+'</div><div class="l">Make-ups owed</div></div></div>';
+  h += '<div class="row" style="margin-bottom:6px">' +
+    '<button class="btn small" data-act="note" data-sid="'+esc(id)+'">Add lesson note</button>' +
+    '<button class="btn small" data-act="pay" data-sid="'+esc(id)+'">Record payment</button>' +
+    '<button class="btn small" data-act="addFor" data-tab="Attendance" data-sid="'+esc(id)+'">Log a lesson</button>' +
+    '<button class="btn small" data-act="addFor" data-tab="Schedule" data-sid="'+esc(id)+'">Add lesson time</button>' +
+    '<button class="btn small" data-act="addFor" data-tab="Make-Ups" data-sid="'+esc(id)+'">Add make-up</button>' +
+    '<button class="btn small" data-act="addFor" data-tab="Mileage" data-sid="'+esc(id)+'">Add mileage trip</button></div>';
+  if(notes.length){
+    const n = notes[0];
+    h += '<h3>Latest lesson note <span class="muted" style="font-family:Inter;font-size:13px">'+fmtDate(n['Date'])+'</span></h3><div class="card note"><dl>' +
+      (n['Current Piece']?'<dt>Current piece</dt><dd>'+esc(n['Current Piece'])+'</dd>':'') +
+      (n['What We Worked On']?'<dt>Worked on</dt><dd>'+esc(n['What We Worked On'])+'</dd>':'') +
+      (n['Practice Next']?'<dt>Practice next</dt><dd>'+esc(n['Practice Next'])+'</dd>':'') + '</dl></div>';
+  }
+  if(mus.length) h += '<h3>Open make-ups</h3>' + mus.map(m => '<div class="row" style="margin-bottom:6px">'+statusPill(m['Status'])+' Missed '+fmtDate(m['Missed Date'])+(m['Scheduled Date']?' &middot; scheduled '+fmtDate(m['Scheduled Date'])+' '+esc(m['Scheduled Time']||''):'')+' <button class="btn small" data-edit="Make-Ups" data-id="'+esc(m['Make-Up ID'])+'">Edit</button></div>').join('');
+  if(att.length) h += '<h3>Recent lessons</h3>' + att.map(a => '<div class="row between" style="padding:6px 0;border-bottom:1px solid var(--line)"><span>'+fmtDate(a['Date'])+' '+statusPill(a['Status'])+'</span><span>'+(num(a['Amount Charged'])?money(a['Amount Charged']):'<span class="muted">no charge</span>')+' <button class="btn small" data-edit="Attendance" data-id="'+esc(a['Record ID'])+'">Edit</button></span></div>').join('');
+  if(pays.length) h += '<h3>Recent payments</h3>' + pays.map(p => '<div class="row between" style="padding:6px 0;border-bottom:1px solid var(--line)"><span>'+fmtDate(p['Date'])+' &middot; '+esc(p['Method']||'')+' '+(p['For']?'<span class="muted">('+esc(p['For'])+')</span>':'')+'</span><span class="credit">'+money(p['Amount'])+'</span></div>').join('');
+  h += '<div class="actions" style="margin-top:16px"><button class="btn left" data-edit="Students" data-id="'+esc(id)+'">Edit student info</button><button class="btn" data-act="printModal">Print</button><button class="btn primary" data-act="close">Done</button></div>';
+  openModal(h);
+}
+
+/* ---------------- CALENDAR ---------------- */
+function ymd(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function weekStart(ds){ const d = dateObj(ds); d.setDate(d.getDate() - d.getDay()); return ymd(d); }
+function addDays(ds, n){ const d = dateObj(ds); d.setDate(d.getDate() + n); return ymd(d); }
+function hueFor(name){ let h = 7; for(const c of String(name)) h = (h * 31 + c.charCodeAt(0)) % 360; return h; }
+function lenOf(r){ return num(r['Length (min)']) || num(setting('Default Lesson Length (min)', 30)) || 30; }
+function fmtMins(t){ const h = Math.floor(t/60), m = t%60; return h ? h + 'h' + (m ? ' ' + m + 'm' : '') : m + 'm'; }
+function hourLabel(m){ const h = Math.floor(m/60); return ((h%12)||12) + (h>=12 ? ' PM' : ' AM'); }
+
+function weekEvents(ws){
+  const days = [];
+  for(let i = 0; i < 7; i++){
+    const date = addDays(ws, i), day = DAYS[i];
+    const ev = [];
+    rows('Schedule').filter(r => r['Day']===day && (student(r['Student ID'])||{})['Status']==='Active').forEach(r => {
+      const att = rows('Attendance').find(a => a['Date']===date && a['Student ID']===r['Student ID'] && a['Status']!=='Make-Up Lesson');
+      ev.push({kind:'regular', sid:r['Student ID'], name:r['Student Name'], start:mins(r['Time']), len:lenOf(r), time:r['Time'], att, schedId:r['Schedule ID']});
+    });
+    rows('Make-Ups').filter(m => m['Scheduled Date']===date && (m['Status']==='Scheduled' || m['Status']==='Completed') && mins(m['Scheduled Time']) < 9999).forEach(m => {
+      const reg = rows('Schedule').find(r => r['Student ID']===m['Student ID']);
+      ev.push({kind:'makeup', sid:m['Student ID'], name:m['Student Name'], start:mins(m['Scheduled Time']), len: reg ? lenOf(reg) : 30, time:m['Scheduled Time'], done:m['Status']==='Completed', muId:m['Make-Up ID']});
+    });
+    const untimed = ev.filter(e => !(e.start < 9999));
+    untimed.forEach(e => ev.splice(ev.indexOf(e), 1));
+    const timed = new Set(ev.map(e => e.sid));
+    const extra = rows('Attendance').filter(a => a['Date']===date && !timed.has(a['Student ID']));
+    ev.sort((a,b)=> a.start - b.start || String(a.name).localeCompare(String(b.name)));
+    // side-by-side lanes for lessons at the same time
+    let cluster = [], clusterEnd = -1;
+    const flush = () => { const lanes = []; cluster.forEach(e => { let l = lanes.findIndex(end => end <= e.start); if(l < 0){ l = lanes.length; lanes.push(0); } lanes[l] = e.start + e.len; e.lane = l; }); cluster.forEach(e => e.lanes = lanes.length); cluster = []; };
+    ev.forEach(e => { if(e.start >= clusterEnd && cluster.length) flush(); cluster.push(e); clusterEnd = Math.max(clusterEnd, e.start + e.len); });
+    if(cluster.length) flush();
+    untimed.forEach(e => extra.push({'Student ID':e.sid,'Student Name':e.name,'Status':'No time set'}));
+    days.push({date, day, ev, extra});
+  }
+  return days;
+}
+
+function evStatus(e){
+  if(e.kind === 'makeup') return e.done ? 'Make-up done' : 'Make-up';
+  return e.att ? e.att['Status'] : '';
+}
+function evClass(e){
+  const s = e.att ? e.att['Status'] : '';
+  if(s.startsWith('Canceled') || s === 'No-Show') return 'ev off';
+  if(s === 'Attended' || (e.kind==='makeup' && e.done)) return 'ev done';
+  return 'ev';
+}
+
+function vSchedule(){
+  const ws = weekStart(UI.calDay || todayStr());
+  UI.calDay = ws;
+  const today = todayStr();
+  const days = weekEvents(ws);
+  const weekly = rows('Schedule').filter(r => (student(r['Student ID'])||{})['Status']==='Active');
+  const totalMin = weekly.reduce((a,r)=> a + lenOf(r), 0);
+  const income = weekly.reduce((a,r)=> a + num((student(r['Student ID'])||{})['Lesson Rate']), 0);
+  const mode = UI.calMode || (window.innerWidth < 760 ? 'list' : 'grid');
+
+  let h = '<div class="row between"><h2>Calendar</h2><div class="row">' +
+    '<button class="btn small '+(mode==='grid'?'primary':'')+'" data-act="calMode" data-m="grid">Week grid</button>' +
+    '<button class="btn small '+(mode==='list'?'primary':'')+'" data-act="calMode" data-m="list">By day</button>' +
+    '<button class="btn small" data-act="printSchedOpen">Print schedule</button>' +
+    '<button class="btn small" data-act="add" data-tab="Schedule">+ Add lesson time</button></div></div>';
+
+  if(!rows('Students').length){
+    return h + '<div class="card empty">Your students are not loaded yet.<br><br>In your Google Sheet, open Extensions, then Apps Script, choose <b>loadMyStudio</b> and click Run. Then click Refresh at the top of this page.</div>';
+  }
+
+  const end = addDays(ws, 6);
+  const rangeLabel = dateObj(ws).toLocaleDateString(undefined,{month:'short',day:'numeric'}) + ' to ' + dateObj(end).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+  h += '<div class="row between" style="margin-bottom:12px"><div class="row"><button class="btn small" data-act="calShift" data-n="-7">&larr; Prev week</button><b>'+esc(rangeLabel)+'</b><button class="btn small" data-act="calShift" data-n="7">Next week &rarr;</button>'+(weekStart(today)===ws?'':'<button class="btn small" data-act="calToday">This week</button>')+'</div>' +
+    '<div class="help">'+weekly.length+' lessons a week &middot; '+fmtMins(totalMin)+' teaching &middot; about '+money(income)+' a week</div></div>';
+
+  if(mode === 'list'){
+    days.forEach(d => {
+      if(!d.ev.length && !d.extra.length) return;
+      const isT = d.date === today;
+      const mins_ = d.ev.reduce((a,e)=> a + e.len, 0);
+      h += '<div class="card" style="margin-bottom:10px;'+(isT?'border-color:var(--brand2);box-shadow:0 0 0 2px var(--soft)':'')+'"><div class="row between" style="margin-bottom:6px"><div><b style="font-size:16px">'+d.day+'</b> <span class="muted">'+fmtDate(d.date).split(', ').slice(1).join(', ')+'</span>'+(isT?' <span class="pill info">Today</span>':'')+'</div><span class="help">'+d.ev.length+' lesson'+(d.ev.length===1?'':'s')+(mins_?' &middot; '+fmtMins(mins_):'')+'</span></div>';
+      d.ev.forEach(e => {
+        const hue = hueFor(e.name);
+        const st = evStatus(e);
+        h += '<div class="lrow" data-act="student" data-id="'+esc(e.sid)+'" style="--h:'+hue+'"><span class="lt">'+esc(e.time)+'</span><span class="ln">'+esc(e.name)+'</span><span class="help">'+e.len+' min</span>'+(st?statusPill(st==='Make-up'?'Scheduled':st==='Make-up done'?'Completed':st):'')+(e.kind==='makeup'?'<span class="pill purple">Make-up</span>':'')+'</div>';
+      });
+      d.extra.forEach(a => { h += '<div class="lrow" data-act="student" data-id="'+esc(a['Student ID'])+'" style="--h:'+hueFor(a['Student Name'])+'"><span class="lt">Extra</span><span class="ln">'+esc(a['Student Name'])+'</span>'+statusPill(a['Status'])+'</div>'; });
+      h += '</div>';
+    });
+    return h;
+  }
+
+  // week grid
+  const all = days.flatMap(d => d.ev);
+  let lo = all.length ? Math.min(...all.map(e => e.start)) : 14*60;
+  let hi = all.length ? Math.max(...all.map(e => e.start + e.len)) : 20*60;
+  lo = Math.floor(lo/60)*60; hi = Math.ceil(hi/60)*60; if(hi - lo < 180) hi = lo + 180;
+  lo = Math.max(6*60, lo - 60); hi = Math.min(22*60, hi + 60); // an hour of room on each side for moving lessons
+  const PX = 1.5, height = (hi - lo) * PX + 12;
+  h += '<div class="calwrap"><div class="cal" data-lo="'+lo+'" data-hi="'+hi+'" data-px="'+PX+'"><div class="calcorner"></div>';
+  days.forEach(d => {
+    const isT = d.date === today;
+    h += '<div class="calday'+(isT?' today':'')+'"><b>'+d.day.slice(0,3)+'</b> '+dateObj(d.date).getDate()+'<span class="help">'+(d.ev.length ? d.ev.length+' lesson'+(d.ev.length===1?'':'s') : '&nbsp;')+'</span>' +
+      (d.extra.length ? '<div class="extra">'+d.extra.map(a => '<span data-act="student" data-id="'+esc(a['Student ID'])+'" style="--h:'+hueFor(a['Student Name'])+'">'+esc(a['Student Name'])+'</span>').join('')+'</div>' : '') + '</div>';
+  });
+  h += '<div class="caltimes" style="height:'+height+'px">';
+  for(let m = lo; m <= hi; m += 60) h += '<div class="hr" style="top:'+((m-lo)*PX)+'px">'+hourLabel(m)+'</div>';
+  h += '</div>';
+  const now = new Date(), nowMin = now.getHours()*60 + now.getMinutes();
+  days.forEach(d => {
+    const isT = d.date === today;
+    h += '<div class="calcol'+(isT?' today':'')+'" data-date="'+d.date+'" data-day="'+d.day+'" style="height:'+height+'px">';
+    for(let m = lo; m <= hi; m += 30) h += '<div class="line'+(m%60?' half':'')+'" style="top:'+((m-lo)*PX)+'px"></div>';
+    if(isT && nowMin >= lo && nowMin <= hi) h += '<div class="now" style="top:'+((nowMin-lo)*PX)+'px"></div>';
+    d.ev.forEach(e => {
+      const w = 100 / e.lanes;
+      const st = evStatus(e);
+      h += '<div class="'+evClass(e)+(e.kind==='makeup'?' mu':'')+'" data-act="student" data-id="'+esc(e.sid)+'" data-kind="'+e.kind+'" data-sched="'+esc(e.schedId||'')+'" data-mu="'+esc(e.muId||'')+'" data-start="'+e.start+'" data-len="'+e.len+'" data-name="'+esc(e.name)+'" data-day="'+d.day+'" title="'+esc(e.name+' '+e.time+' ('+e.len+' min)'+(st?' - '+st:''))+'" style="--h:'+hueFor(e.name)+';top:'+((e.start-lo)*PX+1)+'px;height:'+(e.len*PX-3)+'px;left:calc('+(e.lane*w)+'% + 2px);width:calc('+w+'% - 4px)">' +
+        '<b>'+esc(e.name)+'</b><span>'+esc(e.time)+(e.len!==30?' &middot; '+e.len+'m':'')+'</span>'+(st && e.len>=45?'<span class="st">'+esc(st)+'</span>':'')+'</div>';
+    });
+    h += '</div>';
+  });
+  h += '</div></div>';
+  h += '<p class="help"><b>Drag a lesson</b> to a new day or time to move it (on a phone or tablet, press and hold it for a moment, then drag). Click a lesson to see the student or log it. Faded lessons were canceled; a check means attended.</p>';
+  return h;
+}
+
+/* ---------------- ATTENDANCE ---------------- */
+function vAttendance(){
+  let list = rows('Attendance').filter(a => (!UI.attStudent || a['Student ID']===UI.attStudent) && (!UI.attMonth || String(a['Date']).slice(0,7)===UI.attMonth))
+    .sort((a,b)=> String(b['Date']).localeCompare(String(a['Date'])));
+  const counts = {}; ATT.forEach(s => counts[s]=0); list.forEach(a => counts[a['Status']] = (counts[a['Status']]||0)+1);
+  const charged = list.reduce((a,r)=> a + num(r['Amount Charged']), 0);
+  let h = '<div class="row between"><h2>Attendance &amp; Cancellations</h2><button class="btn primary" data-act="add" data-tab="Attendance">+ Log a lesson</button></div>';
+  h += '<div class="filters"><select id="attStudent">'+studentOptions(UI.attStudent, true)+'</select><input type="month" id="attMonth" value="'+esc(UI.attMonth)+'"><button class="btn" data-act="attAll">Show all months</button></div>';
+  h += '<div class="stats">' +
+    '<div class="card stat"><div class="n">'+counts['Attended']+'</div><div class="l">Attended</div></div>' +
+    '<div class="card stat"><div class="n">'+(counts['Canceled by Student']+counts['Canceled by Teacher'])+'</div><div class="l">Canceled</div></div>' +
+    '<div class="card stat"><div class="n">'+counts['No-Show']+'</div><div class="l">No-shows</div></div>' +
+    '<div class="card stat"><div class="n">'+money(charged)+'</div><div class="l">Lesson charges</div></div></div>';
+  return h + table([
+    {h:'Date', v:r=> fmtDate(r['Date'])},
+    {h:'Student', v:r=> '<b>'+esc(r['Student Name'])+'</b>'},
+    {h:'Status', v:r=> statusPill(r['Status'])},
+    {h:'Payment owed', v:r=> esc(r['Payment Owed'])},
+    {h:'Charged', cls:'num', v:r=> money(r['Amount Charged'])},
+    {h:'Make-up', v:r=> r['Make-Up Owed']==='Yes' ? '<span class="pill warn">Owed</span>' : ''},
+    {h:'Notes', v:r=> '<span class="muted">'+esc(cn(r['Notes']))+'</span>'}
+  ], list, 'Attendance', 'No lessons logged for this filter. Use the <b>Today</b> tab to log lessons with one tap.');
+}
+
+/* ---------------- PAYMENTS ---------------- */
+function vPayments(){
+  const studs = sortedStudents().filter(s => s['Status']!=='Inactive' || Math.abs(ledger(s['Student ID']).balance) > 0.004);
+  const totalOwed = studs.reduce((a,s)=> { const b = ledger(s['Student ID']).balance; return a + (b>0?b:0); }, 0);
+  let h = '<div class="row between"><h2>Payments &amp; Balances</h2><div class="row">' +
+    '<button class="btn" data-act="billMonthly">Bill monthly tuition</button>' +
+    '<button class="btn" data-act="add" data-tab="Charges">+ Add charge</button>' +
+    '<button class="btn primary" data-act="add" data-tab="Payments">+ Record payment</button></div></div>';
+  const allPays = rows('Payments');
+  const pq = UI.payQ.trim().toLowerCase();
+  const pays = allPays.filter(r => {
+    if(UI.payStudent && r['Student ID']!==UI.payStudent) return false;
+    if(UI.payMonth && String(r['Date']).slice(0,7)!==UI.payMonth) return false;
+    if(UI.payMethod && String(r['Method']||'')!==UI.payMethod) return false;
+    if(!pq) return true;
+    const st = student(r['Student ID'])||{};
+    const amt = num(r['Amount']);
+    const hay = [r['Student Name'], st['Parent Name'], r['Method'], r['For'], cn(r['Notes']), r['Date'], fmtDate(r['Date']),
+      amt.toFixed(2), String(amt), money(amt)].join(' ').toLowerCase();
+    return pq.split(/\s+/).every(w => hay.includes(w.replace(/^\$/,'')) || hay.includes(w));
+  }).sort((a,b)=> String(b['Date']).localeCompare(String(a['Date'])));
+  const methods = [...new Set(allPays.map(r => String(r['Method']||'')).filter(Boolean))].sort();
+  const filtered = pq || UI.payStudent || UI.payMonth || UI.payMethod;
+  const payTotal = pays.reduce((a,r)=> a + num(r['Amount']), 0);
+  const payCols = [
+    {h:'Date', v:r=> fmtDate(r['Date'])},
+    {h:'Student', v:r=> '<b>'+esc(r['Student Name'])+'</b>'},
+    {h:'Amount', cls:'num', v:r=> '<span class="credit">'+money(r['Amount'])+'</span>'},
+    {h:'Method', v:r=> esc(r['Method'])},
+    {h:'For', v:r=> esc(r['For'])},
+    {h:'Notes', v:r=> '<span class="muted">'+esc(cn(r['Notes']))+'</span>'}
+  ];
+  h += '<h3>Search payments</h3>';
+  h += '<div class="filters"><input type="search" id="payQ" placeholder="Search name, parent, amount, note" value="'+esc(UI.payQ)+'">' +
+    '<select id="payStudent">'+studentOptions(UI.payStudent, true)+'</select>' +
+    '<input type="month" id="payMonth" value="'+esc(UI.payMonth)+'">' +
+    '<select id="payMethod"><option value="">All methods</option>'+methods.map(m => '<option '+(m===UI.payMethod?'selected':'')+'>'+esc(m)+'</option>').join('')+'</select>' +
+    (filtered ? '<button class="btn" data-act="payClear">Clear search</button>' : '') + '</div>';
+  if(filtered) h += '<p class="help" id="payCount">'+'Showing '+pays.length+' payment'+(pays.length===1?'':'s')+', total <b>'+money(payTotal)+'</b>'+' (of '+allPays.length+')'+'</p>';
+  if(filtered) h += table(payCols, pays, 'Payments', 'No payments match this search.');
+  h += '<p class="help">Balance = lesson charges (from Attendance) + other charges (tuition, books, fees) - payments. Green means the family has a credit.</p>';
+  h += '<h3>Balances <span class="owe" style="font-family:Inter;font-size:14px">'+money(totalOwed)+' owed</span></h3>';
+  if(!studs.length) h += '<div class="card empty">Add students to see balances.</div>';
+  else {
+    h += '<div class="tablewrap"><table><thead><tr><th>Student</th><th>Billing</th><th class="num">Rate</th><th class="num">Lessons</th><th class="num">Other</th><th class="num">Paid</th><th class="num">Balance</th><th></th></tr></thead><tbody>';
+    studs.forEach(s => {
+      const id = s['Student ID'], L = ledger(id);
+      h += '<tr class="click" data-act="student" data-id="'+esc(id)+'"><td><b>'+esc(s['Student Name'])+'</b></td><td>'+esc(s['Billing Type']||'Per Lesson')+'</td><td class="num">'+money(s['Lesson Rate'])+'</td><td class="num">'+money(L.lessons)+'</td><td class="num">'+money(L.other)+'</td><td class="num">'+money(L.paid)+'</td><td class="num '+balClass(L.balance)+'">'+money(L.balance)+'</td><td><button class="btn small" data-act="pay" data-sid="'+esc(id)+'" data-stop>Pay</button></td></tr>';
+    });
+    h += '</tbody></table></div>';
+  }
+  const allSorted = allPays.slice().sort((a,b)=> String(b['Date']).localeCompare(String(a['Date'])));
+  h += '<div class="'+(filtered?'prskip':'')+'"><h3>Payment history</h3>' + table(payCols, allSorted, 'Payments', 'No payments recorded yet.') + '</div>';
+  const ch = rows('Charges').slice().sort((a,b)=> String(b['Date']).localeCompare(String(a['Date'])));
+  h += '<h3>Other charges</h3>' + table([
+    {h:'Date', v:r=> fmtDate(r['Date'])},
+    {h:'Student', v:r=> '<b>'+esc(r['Student Name'])+'</b>'},
+    {h:'Description', v:r=> esc(r['Description'])},
+    {h:'Amount', cls:'num', v:r=> money(r['Amount'])}
+  ], ch, 'Charges', 'No tuition or extra charges yet. Monthly students get charged with <b>Bill monthly tuition</b>.');
+  return h;
+}
+
+/* ---------------- MILEAGE ---------------- */
+function milesFor(id, yr){
+  const t = rows('Mileage').filter(r => r['Student ID']===id && (!yr || String(r['Date']).slice(0,4)===yr));
+  return { miles: t.reduce((a,r)=> a + num(r['Miles']), 0), ded: t.reduce((a,r)=> a + num(r['Deduction']), 0), trips: t.length };
+}
+function fmtMiles(n){ return String(Math.round(num(n)*10)/10); }
+function vMileage(){
+  const all = rows('Mileage');
+  const years = [...new Set(all.map(r => String(r['Date']).slice(0,4)).filter(y => /^\d{4}$/.test(y)).concat([todayStr().slice(0,4)]))].sort().reverse();
+  const yr = UI.mileYear;
+  const trips = all.filter(r => (!yr || String(r['Date']).slice(0,4)===yr) && (!UI.mileStudent || r['Student ID']===UI.mileStudent))
+    .sort((a,b)=> String(b['Date']).localeCompare(String(a['Date'])));
+  const miles = trips.reduce((a,t)=> a + num(t['Miles']), 0), ded = trips.reduce((a,t)=> a + num(t['Deduction']), 0);
+  const rate = num(setting('Mileage Rate (per mile)', 0.76));
+  let h = '<div class="row between"><h2>Mileage for Taxes</h2><button class="btn primary" data-act="add" data-tab="Mileage">+ Add trip</button></div>';
+  h += '<div class="filters"><select id="mileYear"><option value="">All years</option>'+years.map(y => '<option '+(y===yr?'selected':'')+'>'+y+'</option>').join('')+'</select>' +
+    '<select id="mileStudent">'+studentOptions(UI.mileStudent, true)+'</select></div>';
+  h += '<div class="stats">' +
+    '<div class="card stat"><div class="n">'+fmtMiles(miles)+'</div><div class="l">Miles'+(yr?' in '+yr:'')+'</div></div>' +
+    '<div class="card stat"><div class="n">'+money(ded)+'</div><div class="l">Write-off</div></div>' +
+    '<div class="card stat"><div class="n credit">'+money(ded*taxRate()/100)+'</div><div class="l">Est. tax savings</div></div>' +
+    '<div class="card stat"><div class="n">'+trips.length+'</div><div class="l">Trips</div></div>' +
+    '<div class="card stat"><div class="n">$'+rate.toFixed(3)+'</div><div class="l">Current rate per mile</div></div></div>';
+  h += '<h3>Miles per lesson</h3><p class="help">Type the round-trip miles for any student you drive to, then tap away from the box. It saves to your sheet right away. From then on, every lesson marked attended for that student adds a mileage trip automatically. Leave it blank for students who come to you.</p>';
+  const studs = sortedStudents().filter(s => s['Status']!=='Inactive' || num(s['Miles Per Lesson']) > 0);
+  h += '<div class="tablewrap"><table><thead><tr><th>Student</th><th class="num">Miles per lesson</th><th class="num">Miles'+(yr?' in '+yr:'')+'</th><th class="num">Deduction</th></tr></thead><tbody>' +
+    studs.map(st => { const id = st['Student ID'], m = milesFor(id, yr);
+      return '<tr><td><b>'+esc(st['Student Name'])+'</b>'+(st['Status']!=='Active'?' <span class="muted">('+esc(st['Status'])+')</span>':'')+'</td>' +
+        '<td class="num"><input class="mplIn" type="number" min="0" step="0.1" inputmode="decimal" data-sid="'+esc(id)+'" value="'+esc(st['Miles Per Lesson']===''||st['Miles Per Lesson']==null?'':st['Miles Per Lesson'])+'" placeholder="none" style="width:90px;text-align:right"></td>' +
+        '<td class="num">'+(m.trips?fmtMiles(m.miles):'')+'</td><td class="num">'+(m.trips?money(m.ded):'')+'</td></tr>'; }).join('') +
+    '</tbody></table></div>';
+  h += '<h3>Trip log</h3>' + table([
+    {h:'Date', v:r=> fmtDate(r['Date'], true)},
+    {h:'Student', v:r=> esc(r['Student Name']||'')},
+    {h:'Purpose', v:r=> esc(r['Purpose'])},
+    {h:'Miles', cls:'num', v:r=> esc(r['Miles'])},
+    {h:'Rate', cls:'num', v:r=> '$'+num(r['Rate']).toFixed(3)},
+    {h:'Deduction', cls:'num', v:r=> money(r['Deduction'])}
+  ], trips, 'Mileage', 'No trips for this filter. Tap <b>+ Add trip</b> to log one, like a run to the music store.');
+  return h;
+}
+async function saveMiles(sid, val, el){
+  const v = String(val).trim();
+  if(v !== '' && (isNaN(Number(v)) || Number(v) < 0)){ toast('Miles must be a number', true); return; }
+  const st = student(sid) || {};
+  const old = st['Miles Per Lesson']===''||st['Miles Per Lesson']==null ? '' : String(st['Miles Per Lesson']);
+  if(v === old || (v !== '' && old !== '' && Number(v) === Number(old))) return;
+  if(el) el.disabled = true;
+  try{
+    await apiPost({action:'update', tab:'Students', id:sid, record:{'Miles Per Lesson': v === '' ? '' : Number(v)}});
+    toast(sName(sid)+': '+(v === '' ? 'no mileage' : v+' miles per lesson')+' saved');
+    render();
+    if(document.getElementById('studentMiles')) studentDetail(sid);
+  }catch(e){ toast(e.message, true); if(el) el.disabled = false; }
+}
+
+/* ---------------- EXPENSES ---------------- */
+function taxRate(){ const r = num(setting('Tax Savings Rate (%)', 30)); return r > 0 && r < 100 ? r : 30; }
+function vExpenses(){
+  const ready = DATA && Object.prototype.hasOwnProperty.call(DATA, 'Expenses');
+  let h = '<div class="row between"><h2>Business Expenses</h2>'+(ready?'<button class="btn primary" data-act="add" data-tab="Expenses">+ Add expense</button>':'')+'</div>';
+  if(!ready) return h + '<div class="card"><p><b>One quick setup step is needed before you can enter expenses.</b></p><p>Your Google script needs the new Expenses add-on file. Claude sent you the file and the steps in the chat. Once it is done, tap Refresh at the top and this page will be ready.</p></div>';
+  const all = rows('Expenses');
+  const yr = UI.expYear, q = UI.expQ.trim().toLowerCase();
+  const years = [...new Set(all.concat(rows('Mileage')).map(r => String(r['Date']).slice(0,4)).filter(y => /^\d{4}$/.test(y)).concat([todayStr().slice(0,4)]))].sort().reverse();
+  const inYear = all.filter(r => !yr || String(r['Date']).slice(0,4)===yr);
+  const list = inYear.filter(r => (!UI.expCat || r['Category']===UI.expCat) &&
+      (!q || [r['Paid To'], r['Category'], r['Description'], r['Method'], r['Notes'], r['Amount'], money(r['Amount'])].join(' ').toLowerCase().includes(q.replace(/^\$/,''))))
+    .sort((a,b)=> String(b['Date']).localeCompare(String(a['Date'])));
+  const wo = r => (r['Write-Off']===''||r['Write-Off']==null) ? num(r['Amount'])*(r['Business Use %']===''||r['Business Use %']==null?100:num(r['Business Use %']))/100 : num(r['Write-Off']);
+  const spent = inYear.reduce((a,r)=> a + num(r['Amount']), 0);
+  const expWO = inYear.reduce((a,r)=> a + wo(r), 0);
+  const mileWO = rows('Mileage').filter(r => !yr || String(r['Date']).slice(0,4)===yr).reduce((a,r)=> a + num(r['Deduction']), 0);
+  const totalWO = expWO + mileWO, rate = taxRate();
+  h += '<div class="filters"><select id="expYear"><option value="">All years</option>'+years.map(y => '<option '+(y===yr?'selected':'')+'>'+y+'</option>').join('')+'</select>' +
+    '<select id="expCat"><option value="">All categories</option>'+EXPENSE_CATS.map(c => '<option '+(c===UI.expCat?'selected':'')+'>'+esc(c)+'</option>').join('')+'</select>' +
+    '<input type="search" id="expQ" placeholder="Search store, item, note, amount" value="'+esc(UI.expQ)+'"></div>';
+  h += '<div class="stats">' +
+    '<div class="card stat"><div class="n">'+money(expWO)+'</div><div class="l">Expense write-offs</div></div>' +
+    '<div class="card stat"><div class="n">'+money(mileWO)+'</div><div class="l">Mileage write-off</div></div>' +
+    '<div class="card stat"><div class="n">'+money(totalWO)+'</div><div class="l">Total write-offs'+(yr?' '+yr:'')+'</div></div>' +
+    '<div class="card stat"><div class="n credit">'+money(totalWO*rate/100)+'</div><div class="l">Est. tax savings</div></div></div>';
+  h += '<p class="help">A write-off is not money back dollar for dollar. It lowers the profit you pay tax on, so you save roughly your tax rate on it. The estimate uses '+rate+'% (federal income tax, self-employment tax, and Wisconsin tax combined, a rough figure for many teachers). You can change it on the Settings tab of your Google Sheet, in the row "Tax Savings Rate (%)". Your tax preparer can tell you your real rate.</p>';
+  const cats = {};
+  inYear.forEach(r => { const c = r['Category']||'Other'; cats[c] = (cats[c]||0) + wo(r); });
+  const catList = Object.keys(cats).sort((a,b)=> cats[b]-cats[a]);
+  if(catList.length) h += '<h3>By category'+(yr?' in '+yr:'')+'</h3><div class="tablewrap"><table><thead><tr><th>Category</th><th class="num">Write-off</th><th class="num">Est. savings</th></tr></thead><tbody>' +
+    catList.map(c => '<tr class="click" data-act="expCat" data-cat="'+esc(c)+'"><td>'+esc(c)+'</td><td class="num">'+money(cats[c])+'</td><td class="num credit">'+money(cats[c]*rate/100)+'</td></tr>').join('') +
+    (mileWO ? '<tr class="click" data-view="mileage"><td>Business mileage</td><td class="num">'+money(mileWO)+'</td><td class="num credit">'+money(mileWO*rate/100)+'</td></tr>' : '') +
+    '</tbody></table></div>';
+  const filtered = UI.expCat || q;
+  h += '<h3>'+(filtered ? 'Matching expenses' : 'All expenses')+' <span class="muted" style="font-family:Inter;font-size:14px">'+list.length+' &middot; '+money(list.reduce((a,r)=> a + num(r['Amount']), 0))+' spent</span></h3>' +
+    (filtered ? '<p><button class="btn small" data-act="expClear">Clear search</button></p>' : '');
+  h += table([
+    {h:'Date', v:r=> fmtDate(r['Date'], true)},
+    {h:'Paid to', v:r=> '<b>'+esc(r['Paid To'])+'</b>'},
+    {h:'For', v:r=> esc(r['Description']||'') + (r['Receipt Link'] ? ' <a href="'+esc(r['Receipt Link'])+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">receipt</a>' : '')},
+    {h:'Category', v:r=> '<span class="muted">'+esc(r['Category'])+'</span>'},
+    {h:'Amount', cls:'num', v:r=> money(r['Amount'])},
+    {h:'Write-off', cls:'num', v:r=> money(wo(r)) + (num(r['Business Use %']) && num(r['Business Use %'])!==100 ? ' <span class="muted">('+num(r['Business Use %'])+'%)</span>' : '')}
+  ], list, 'Expenses', filtered ? 'No expenses match this search.' : 'No expenses yet'+(yr?' for '+yr:'')+'. Tap <b>+ Add expense</b> to log one, like a bow rehair, strings, or sheet music.');
+  return h;
+}
+
+/* ---------------- DRAG LESSONS ON THE CALENDAR ---------------- */
+let DRAG = null, SUPPRESS_CLICK = false;
+function fmt12(m){ const h = Math.floor(m/60), mm = m % 60; return ((h%12)||12) + ':' + pad(mm) + ' ' + (h>=12 ? 'PM' : 'AM'); }
+function dragStart(){
+  const d = DRAG, el = d.el, cal = el.closest('.cal');
+  d.started = true; d.lo = +cal.dataset.lo; d.hi = +cal.dataset.hi; d.px = +cal.dataset.px;
+  d.cols = [...cal.querySelectorAll('.calcol')];
+  d.len = +el.dataset.len; d.origStart = +el.dataset.start; d.origDay = el.dataset.day;
+  d.grab = d.y0 - el.getBoundingClientRect().top;
+  el.classList.add('dragging'); document.body.classList.add('dragging-lesson');
+  el.style.left = '2px'; el.style.width = 'calc(100% - 4px)';
+  d.label = el.querySelector('span');
+}
+function dragMove(x, y){
+  const d = DRAG;
+  let col = d.cols.find(c => { const r = c.getBoundingClientRect(); return x >= r.left && x < r.right; });
+  if(!col){ const r0 = d.cols[0].getBoundingClientRect(); col = x < r0.left ? d.cols[0] : d.cols[d.cols.length-1]; }
+  const r = col.getBoundingClientRect();
+  let m = d.lo + (y - d.grab - r.top) / d.px;
+  m = Math.round(m / 15) * 15;
+  m = Math.max(d.lo, Math.min(d.hi - d.len, m));
+  if(d.el.parentNode !== col){ d.cols.forEach(c => c.classList.remove('droptarget')); col.classList.add('droptarget'); col.appendChild(d.el); }
+  d.el.style.top = ((m - d.lo) * d.px + 1) + 'px';
+  d.newDay = col.dataset.day; d.newDate = col.dataset.date; d.newMin = m;
+  if(d.label) d.label.textContent = col.dataset.day.slice(0,3) + ' ' + fmt12(m);
+  // keep the page scrolling when dragging near the top or bottom of the screen
+  if(y < 70) window.scrollBy(0, -12); else if(y > window.innerHeight - 50) window.scrollBy(0, 12);
+}
+function dragEnd(){
+  const d = DRAG; DRAG = null;
+  document.body.classList.remove('dragging-lesson');
+  safeRender.pending = false;
+  d.cols.forEach(c => c.classList.remove('droptarget'));
+  if(d.newDay == null || (d.newDay === d.origDay && d.newMin === d.origStart)){ render(); return; }
+  const el = d.el, name = el.dataset.name, newTime = fmt12(d.newMin);
+  // anything already in that spot?
+  const other = (weekEvents(weekStart(d.newDate)).find(x => x.date === d.newDate) || {ev:[]}).ev
+    .filter(x => !(x.kind === el.dataset.kind && (x.schedId || x.muId) === (el.dataset.sched || el.dataset.mu)))
+    .filter(x => x.start < d.newMin + d.len && d.newMin < x.start + x.len);
+  const warn = other.length ? '<p class="help" style="color:var(--bad)"><b>Heads up:</b> this overlaps '+other.map(x => esc(x.name)+' at '+esc(x.time)).join(', ')+'.</p>' : '';
+  let msg, payload;
+  if(el.dataset.kind === 'makeup'){
+    msg = 'Move '+esc(name)+'\'s make-up lesson to <b>'+esc(longDate(d.newDate))+' at '+newTime+'</b>?';
+    payload = {action:'update', tab:'Make-Ups', id:el.dataset.mu, record:{'Scheduled Date': d.newDate, 'Scheduled Time': newTime}};
+  } else {
+    const from = d.origDay + 's at ' + fmt12(d.origStart);
+    msg = 'Move '+esc(name)+'\'s weekly lesson to <b>'+esc(d.newDay)+'s at '+newTime+'</b>?<br><span class="help">Was '+esc(from)+'. This changes their regular time every week from now on. For a one-time change, add a make-up lesson instead.</span>';
+    payload = {action:'update', tab:'Schedule', id:el.dataset.sched, record:{'Day': d.newDay, 'Time': newTime}};
+  }
+  closeModal.after = () => render();
+  openModal('<h2>Move lesson?</h2><p>'+msg+'</p>'+warn+'<div class="actions"><button class="btn" data-act="close">Cancel</button><button class="btn primary" id="dragOk">Move</button></div>');
+  $('#dragOk').onclick = async () => {
+    const b = $('#dragOk'); b.disabled = true; b.textContent = 'Saving...';
+    try{ await apiPost(payload); closeModal.after = null; closeModal(); toast(name + ' moved to ' + (el.dataset.kind==='makeup' ? fmtDate(d.newDate) : d.newDay + 's') + ' at ' + newTime); render(); }
+    catch(e){ toast(e.message, true); b.disabled = false; b.textContent = 'Move'; }
+  };
+}
+document.addEventListener('pointerdown', e => {
+  const el = e.target.closest('.cal .ev');
+  if(!el || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  DRAG = {el, x0: e.clientX, y0: e.clientY, started: false, ready: e.pointerType === 'mouse'};
+  if(!DRAG.ready){
+    const d = DRAG;
+    d.timer = setTimeout(() => { if(DRAG === d){ d.ready = true; dragStart(); if(navigator.vibrate) navigator.vibrate(15); dragMove(d.x0, d.y0); } }, 350);
+  }
+});
+document.addEventListener('pointermove', e => {
+  const d = DRAG; if(!d) return;
+  const dist = Math.hypot(e.clientX - d.x0, e.clientY - d.y0);
+  if(!d.ready){ if(dist > 8){ clearTimeout(d.timer); DRAG = null; } return; }
+  if(!d.started){ if(dist < 5) return; dragStart(); }
+  e.preventDefault();
+  dragMove(e.clientX, e.clientY);
+});
+document.addEventListener('pointerup', () => {
+  const d = DRAG; if(!d) return;
+  clearTimeout(d.timer);
+  if(d.started){ SUPPRESS_CLICK = true; setTimeout(() => SUPPRESS_CLICK = false, 400); dragEnd(); }
+  else DRAG = null;
+});
+document.addEventListener('pointercancel', () => { const d = DRAG; if(!d) return; clearTimeout(d.timer); DRAG = null; if(d.started){ document.body.classList.remove('dragging-lesson'); render(); } });
+document.addEventListener('touchmove', e => { if(DRAG && DRAG.started) e.preventDefault(); }, {passive: false});
+document.addEventListener('contextmenu', e => { if(e.target.closest('.cal .ev')) e.preventDefault(); });
+document.addEventListener('click', e => { if(SUPPRESS_CLICK && !e.target.closest('#sheet')){ SUPPRESS_CLICK = false; e.stopPropagation(); e.preventDefault(); } }, true);
+
+/* ---------------- PRINTING ---------------- */
+function printDoc(title, bodyHtml, landscape){
+  let ps = document.getElementById('pageSize');
+  if(!ps){ ps = document.createElement('style'); ps.id = 'pageSize'; document.head.appendChild(ps); }
+  ps.textContent = '@page{size:letter ' + (landscape ? 'landscape' : 'portrait') + ';margin:0.45in}';
+  const printed = new Date().toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'});
+  $('#printArea').innerHTML = '<div class="pr"><h1>'+esc(title)+'</h1><div class="prsub">'+esc(setting('Studio Name','Violin Studio'))+' &middot; printed '+esc(printed)+'</div>'+bodyHtml+'</div>';
+  document.body.classList.add('print-mode');
+  const done = () => { document.body.classList.remove('print-mode'); $('#printArea').innerHTML = ''; window.removeEventListener('afterprint', done); };
+  window.addEventListener('afterprint', done);
+  setTimeout(() => window.print(), 50);
+}
+// Prints whatever is on screen (a page or an open student window), with the filters written out.
+function printCurrent(){
+  const modalOpen = !$('#modal').classList.contains('hidden');
+  const src = modalOpen ? $('#sheet') : $('#view');
+  if(!src || !src.innerHTML.trim()) return;
+  const clone = src.cloneNode(true);
+  const notes = [];
+  src.querySelectorAll('select').forEach(sel => { if(sel.value && sel.selectedIndex >= 0 && !sel.closest('form')) notes.push(sel.options[sel.selectedIndex].text); });
+  src.querySelectorAll('input[type=search],input[type=month],input[type=date]').forEach(inp => { if(inp.value && !inp.closest('form')){
+    let v = inp.value;
+    if(inp.type === 'month'){ const d = dateObj(v + '-01'); v = d.toLocaleDateString(undefined,{month:'long',year:'numeric'}); }
+    else if(inp.type === 'date') v = fmtDate(v, true);
+    else v = 'search "' + v + '"';
+    notes.push(v); } });
+  clone.querySelectorAll('input:not([type=checkbox]):not([type=radio])').forEach(inp => { if(inp.closest('td') || inp.closest('.kv')){ const sp = document.createElement('span'); sp.textContent = inp.value || '-'; inp.replaceWith(sp); } });
+  clone.querySelectorAll('button,.btn,.filters,input,select,textarea,.actions,.now,.prskip').forEach(el => el.remove());
+  clone.querySelectorAll('[style*="position:sticky"]').forEach(el => el.style.position = 'static');
+  const h2 = clone.querySelector('h2');
+  const title = h2 ? h2.textContent.trim() : (VIEWS.find(v => v[0]===VIEW)||['','Studio'])[1];
+  if(h2) h2.remove();
+  const wide = clone.querySelectorAll('th').length > 0 && Math.max(0, ...[...clone.querySelectorAll('thead tr')].map(tr => tr.children.length)) > 6;
+  printDoc(title, (notes.length ? '<div class="prsub"><b>Showing:</b> '+esc(notes.join(' · '))+'</div>' : '') + clone.innerHTML, wide);
+}
+function onPrintClick(){
+  const modalOpen = !$('#modal').classList.contains('hidden');
+  if(!modalOpen && VIEW === 'schedule') return openSchedulePrint();
+  printCurrent();
+}
+
+/* ----- schedule printing: day, week, month, year ----- */
+function dayEvents(date){ return weekEvents(weekStart(date)).find(d => d.date === date); }
+function evLine(e, short){
+  const st = evStatus(e);
+  const off = e.att && (String(e.att['Status']).startsWith('Canceled') || e.att['Status'] === 'No-Show');
+  const t = short ? String(e.time).replace(':00','').replace(' AM','a').replace(' PM','p') : esc(e.time);
+  return '<div class="e'+(off?' off':'')+'">'+t+' '+esc(e.name)+(short ? '' : ' <span style="color:#555">('+e.len+' min)</span>')+(e.kind==='makeup' ? ' <i>make-up</i>' : '')+(st && !short && e.kind!=='makeup' ? ' <i>'+esc(st)+'</i>' : '')+'</div>';
+}
+function longDate(ds){ return dateObj(ds).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'}); }
+function printDaySchedule(date){
+  const d = dayEvents(date);
+  const ev = d ? d.ev : [];
+  const total = ev.reduce((a,e)=> a + e.len, 0);
+  let h = '<p><b>'+ev.length+' lesson'+(ev.length===1?'':'s')+'</b>'+(total ? ' &middot; '+fmtMins(total)+' of teaching' : '')+'</p>';
+  h += '<table><thead><tr><th style="width:90px">Time</th><th>Student</th><th style="width:70px">Length</th><th style="width:120px">Status</th><th style="width:40%">Notes</th></tr></thead><tbody>' +
+    (ev.length ? ev.map(e => { const st = evStatus(e); const sObj = student(e.sid)||{};
+      return '<tr><td>'+esc(e.time)+'</td><td><b>'+esc(e.name)+'</b>'+(sObj['Parent Name']?'<br><span style="color:#555">'+esc(sObj['Parent Name'])+'</span>':'')+'</td><td>'+e.len+' min</td><td>'+esc(st || (e.kind==='makeup'?'Make-up':''))+'</td><td class="write"></td></tr>'; }).join('')
+      : '<tr><td colspan="5">No lessons scheduled.</td></tr>') + '</tbody></table>';
+  if(d && d.extra.length) h += '<h3>Other lessons logged this day</h3><table><tbody>' + d.extra.map(a => '<tr><td><b>'+esc(a['Student Name'])+'</b></td><td>'+esc(a['Status'])+'</td></tr>').join('') + '</tbody></table>';
+  printDoc('Schedule for ' + longDate(date), h, false);
+}
+function printWeekSchedule(date){
+  const ws = weekStart(date), days = weekEvents(ws);
+  const n = days.reduce((a,d)=> a + d.ev.length, 0);
+  let h = '<p><b>'+n+' lesson'+(n===1?'':'s')+' this week</b></p><table class="wk"><thead><tr>' + days.map(d => '<th>'+d.day+'<br><span style="font-weight:400">'+dateObj(d.date).toLocaleDateString(undefined,{month:'short',day:'numeric'})+'</span></th>').join('') + '</tr></thead><tbody><tr>' +
+    days.map(d => '<td>'+(d.ev.map(e => evLine(e, false)).join('') || '<span style="color:#888">No lessons</span>') + d.extra.map(a => '<div class="e"><i>Also: '+esc(a['Student Name'])+'</i></div>').join('') + '</td>').join('') + '</tr></tbody></table>';
+  printDoc('Week of ' + dateObj(ws).toLocaleDateString(undefined,{month:'long',day:'numeric'}) + ' to ' + dateObj(addDays(ws,6)).toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'}), h, true);
+}
+function monthGrid(y, m){
+  const first = y + '-' + pad(m+1) + '-01';
+  let ws = weekStart(first);
+  let rowsH = '', count = 0;
+  for(let w = 0; w < 6; w++){
+    const days = weekEvents(ws);
+    if(w > 0 && dateObj(days[0].date).getMonth() !== m) break;
+    rowsH += '<tr>' + days.map(d => { const inM = dateObj(d.date).getMonth() === m; if(inM) count += d.ev.length;
+      return '<td class="'+(inM?'':'out')+'"><div class="dn">'+dateObj(d.date).getDate()+'</div>'+(inM ? d.ev.map(e => evLine(e, true)).join('') : '')+'</td>'; }).join('') + '</tr>';
+    ws = addDays(ws, 7);
+  }
+  const name = dateObj(first).toLocaleDateString(undefined,{month:'long',year:'numeric'});
+  return {name, count, html:'<table class="mcal"><thead><tr>'+DAYS.map(d => '<th>'+d.slice(0,3)+'</th>').join('')+'</tr></thead><tbody>'+rowsH+'</tbody></table>'};
+}
+function printMonthSchedule(date){
+  const d = dateObj(date), g = monthGrid(d.getFullYear(), d.getMonth());
+  printDoc(g.name + ' schedule', '<p><b>'+g.count+' lessons</b> &middot; a, p = AM, PM</p>' + g.html, true);
+}
+function printYearSchedule(date){
+  const y = dateObj(date).getFullYear();
+  let h = '';
+  for(let m = 0; m < 12; m++){ const g = monthGrid(y, m); h += '<div class="'+(m<11?'pb':'')+'"><h2>'+esc(g.name)+' <span style="font:400 10pt Inter,Arial">'+g.count+' lessons</span></h2>'+g.html+'</div>'; }
+  printDoc(y + ' schedule', '<p>Each month prints on its own page. a, p = AM, PM. Lessons follow your current weekly schedule; past dates also show what was logged.</p>' + h, true);
+}
+function openSchedulePrint(){
+  const d = UI.printDate || UI.day || todayStr();
+  openModal('<h2>Print your schedule</h2><p class="help">Pick how much to print and any date inside it.</p>' +
+    '<div class="grid2"><label class="f"><span>Print</span><select id="prKind"><option value="day">One day</option><option value="week" selected>One week</option><option value="month">One month</option><option value="year">A whole year (12 pages)</option></select></label>' +
+    '<label class="f"><span>Date</span><input type="date" id="prDate" value="'+esc(d)+'"></label></div>' +
+    '<div class="actions"><button class="btn left" data-act="printPage">Print this page as shown</button><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="printSched">Print</button></div>');
+}
+
+/* ---------------- MAKE-UPS ---------------- */
+function vMakeups(){
+  const f = UI.muStatus;
+  const list = rows('Make-Ups').filter(m => f==='All' || (f==='Open' ? (m['Status']==='Owed'||m['Status']==='Scheduled') : m['Status']===f))
+    .sort((a,b)=> String(a['Scheduled Date']||a['Missed Date']).localeCompare(String(b['Scheduled Date']||b['Missed Date'])));
+  let h = '<div class="row between"><h2>Make-Up Lessons</h2><button class="btn primary" data-act="add" data-tab="Make-Ups">+ Add make-up</button></div>';
+  h += '<div class="row" style="margin-bottom:14px">' + ['Open','Owed','Scheduled','Completed','Forfeited','All'].map(s => '<button class="btn small '+(s===f?'primary':'')+'" data-act="muFilter" data-s="'+s+'">'+s+'</button>').join('') + '</div>';
+  h += '<p class="help">Make-ups are created automatically when you log a lesson with "Make-Up Owed: Yes". Click one to schedule it. When it is taught, tap "Make-up done" on the Today tab.</p>';
+  return h + table([
+    {h:'Student', v:r=> '<b>'+esc(r['Student Name'])+'</b>'},
+    {h:'Status', v:r=> statusPill(r['Status'])},
+    {h:'Missed', v:r=> fmtDate(r['Missed Date'])},
+    {h:'Reason', v:r=> esc(r['Reason'])},
+    {h:'Scheduled for', v:r=> r['Scheduled Date'] ? fmtDate(r['Scheduled Date'])+' '+esc(r['Scheduled Time']||'') : '<span class="muted">Not yet</span>'},
+    {h:'Notes', v:r=> '<span class="muted">'+esc(cn(r['Notes']))+'</span>'}
+  ], list, 'Make-Ups', 'No make-ups in this list.');
+}
+
+/* ---------------- NOTES ---------------- */
+function vNotes(){
+  const list = rows('Lesson Notes').filter(n => !UI.noteStudent || n['Student ID']===UI.noteStudent)
+    .sort((a,b)=> String(b['Date']).localeCompare(String(a['Date'])));
+  let h = '<div class="row between"><h2>Lesson Notes &amp; Assignments</h2><button class="btn primary" data-act="note" data-sid="'+esc(UI.noteStudent)+'">+ Add note</button></div>';
+  h += '<div class="filters"><select id="noteStudent">'+studentOptions(UI.noteStudent, true)+'</select></div>';
+  if(!list.length) return h + '<div class="card empty">No lesson notes yet.</div>';
+  return h + list.slice(0,100).map(n => '<div class="card note" style="margin-bottom:10px"><div class="hd"><div><b>'+esc(n['Student Name'])+'</b> <span class="muted">&middot; '+fmtDate(n['Date'])+'</span></div><button class="btn small" data-edit="Lesson Notes" data-id="'+esc(n['Note ID'])+'">Edit</button></div><dl>' +
+    (n['Current Piece']?'<dt>Current piece</dt><dd>'+esc(n['Current Piece'])+'</dd>':'') +
+    (n['What We Worked On']?'<dt>What we worked on</dt><dd>'+esc(n['What We Worked On'])+'</dd>':'') +
+    (n['Practice Next']?'<dt>Practice next</dt><dd>'+esc(n['Practice Next'])+'</dd>':'') +
+    (n['Notes']?'<dt>Notes</dt><dd>'+esc(cn(n['Notes']))+'</dd>':'') + '</dl></div>').join('');
+}
+
+/* ---------------- SETTINGS ---------------- */
+function vSettings(){
+  const first = !cfg.url || !cfg.key;
+  return '<div class="welcome"><h2>'+(first ? 'Connect your Google Sheet' : 'Settings')+'</h2>' +
+    (first ? '<p>Your web app URL is already filled in. Paste your Studio Key and click Save and connect. This only has to be done once on each device (computer, phone, tablet).</p>' : '') +
+    '<div class="card"><label class="f"><span>Web app URL (ends in /exec)</span><input type="url" id="cfgUrl" placeholder="https://script.google.com/macros/s/.../exec" value="'+esc(cfg.url)+'"></label>' +
+    '<label class="f"><span>Studio Key</span><input type="password" id="cfgKey" placeholder="violin-..." value="'+esc(cfg.key)+'"></label>' +
+    '<div class="row"><button class="btn primary" data-act="saveCfg">Save and connect</button><button class="btn" data-act="toggleKey">Show key</button></div></div>' +
+    '<p class="help" style="margin-top:14px">Your student information is never stored on GitHub. It lives only in your Google Sheet, and this page can read it only with your Studio Key. The URL and key are saved in this browser only.</p>' +
+    (DATA ? '<p class="help">Studio name, teacher email, default rate and default lesson length can be changed on the Settings tab inside the Google Sheet.</p>' : '') + '</div>';
+}
+
+/* ---------------- forms ---------------- */
+function openModal(html){ $('#sheet').innerHTML = html; $('#modal').classList.remove('hidden'); }
+function closeModal(){ $('#modal').classList.add('hidden'); $('#sheet').innerHTML = ''; if(closeModal.after){ const f = closeModal.after; closeModal.after = null; f(); } }
+
+function fieldHtml(f, val){
+  const label = f.label || f.k;
+  const name = 'f_' + f.k.replace(/[^A-Za-z]/g,'');
+  let input;
+  const v = val == null ? '' : val;
+  if(f.t==='select') input = '<select name="'+name+'" data-k="'+esc(f.k)+'">'+(f.req?'':'<option value=""></option>')+f.o.map(o => '<option '+(String(o)===String(v)?'selected':'')+'>'+esc(o)+'</option>').join('')+'</select>';
+  else if(f.t==='student') input = '<select name="'+name+'" data-k="'+esc(f.k)+'">'+studentOptions(v).replace('Choose a student', f.req ? 'Choose a student' : 'None')+'</select>';
+  else if(f.t==='textarea') input = '<textarea name="'+name+'" data-k="'+esc(f.k)+'">'+esc(v)+'</textarea>';
+  else if(f.t==='time') input = '<input type="time" name="'+name+'" data-k="'+esc(f.k)+'" value="'+esc(to24(v))+'">';
+  else if(f.t==='number') input = '<input type="number" step="0.01" inputmode="decimal" name="'+name+'" data-k="'+esc(f.k)+'" value="'+esc(v)+'">';
+  else input = '<input type="'+(f.t||'text')+'" name="'+name+'" data-k="'+esc(f.k)+'" value="'+esc(v)+'">';
+  return '<label class="f" style="'+(f.wide?'grid-column:1/-1':'')+'"><span>'+esc(label)+(f.req?' *':'')+'</span>'+input+'</label>';
+}
+
+function openForm(tab, id, prefill, opts){
+  opts = opts || {};
+  const rec = id ? rows(tab).find(r => r[ID_KEY[tab]]===id) : null;
+  const vals = Object.assign({}, rec || {}, prefill || {});
+  const title = (id ? 'Edit ' : (opts.title ? '' : 'New ')) + (opts.title || SINGULAR[tab]);
+  let h = '<h2>'+esc(title)+'</h2>' + (opts.intro ? '<p class="help">'+opts.intro+'</p>' : '') + '<form id="recForm"><div class="grid2">' +
+    FIELDS[tab].map(f => fieldHtml(f, vals[f.k])).join('') + '</div>' +
+    (tab==='Attendance' ? '<p class="help" id="attHelp"></p>' : '') +
+    '<div class="actions">' + (id ? '<button type="button" class="btn danger left" data-act="del" data-tab="'+esc(tab)+'" data-id="'+esc(id)+'">Delete</button>' : '') +
+    '<button type="button" class="btn" data-act="close">Cancel</button><button type="submit" class="btn primary">Save</button></div></form>';
+  openModal(h);
+  const form = $('#recForm');
+  form.onsubmit = async ev => {
+    ev.preventDefault();
+    const out = {};
+    let missing = '';
+    FIELDS[tab].forEach(f => {
+      const el = form.querySelector('[data-k="'+f.k+'"]');
+      let v = el.value.trim();
+      if(f.t==='time') v = to12(v);
+      if(f.t==='number' && v!=='') v = Number(v);
+      if(f.req && (v==='' || v==null) && !missing) missing = f.label || f.k;
+      out[f.k] = v;
+    });
+    if(missing){ toast('Please fill in: ' + missing, true); return; }
+    if(tab==='Expenses'){ if(out['Business Use %']==='') out['Business Use %'] = 100; if(out['Business Use %'] < 0 || out['Business Use %'] > 100){ toast('Business use % must be between 0 and 100', true); return; } out['Write-Off'] = Math.round(num(out['Amount'])*num(out['Business Use %']))/100; }
+    if(tab==='Mileage'){ if(out['Rate']==='' ) out['Rate'] = num(setting('Mileage Rate (per mile)', 0.76)); out['Deduction'] = Math.round(num(out['Miles'])*num(out['Rate'])*100)/100; }
+    const btn = form.querySelector('[type=submit]'); btn.disabled = true; btn.textContent = 'Saving...';
+    try{
+      if(id) await apiPost({action:'update', tab, id, record: out});
+      else if(tab==='Attendance') await apiPost({action:'logLesson', record: out, makeupId: opts.makeupId || ''});
+      else await apiPost({action:'add', tab, record: out});
+      closeModal(); toast('Saved'); render();
+      if(opts.reopenStudent) studentDetail(opts.reopenStudent);
+    }catch(e){ toast(e.message, true); btn.disabled = false; btn.textContent = 'Save'; }
+  };
+  if(tab==='Attendance') wireAttendance(form, !!id);
+  if(tab==='Students' && !id){
+    const rate = form.querySelector('[data-k="Lesson Rate"]');
+    if(rate && rate.value==='' && setting('Default Lesson Rate','')!=='') rate.value = setting('Default Lesson Rate','');
+  }
+  if(tab==='Schedule' && !id){
+    const len = form.querySelector('[data-k="Length (min)"]');
+    if(len && len.value==='') len.value = setting('Default Lesson Length (min)', 30);
+  }
+}
+
+function wireAttendance(form, isEdit){
+  const g = k => form.querySelector('[data-k="'+k+'"]');
+  const help = $('#attHelp');
+  const explain = () => {
+    const s = student(g('Student ID').value) || {};
+    help.innerHTML = s['Billing Type']==='Monthly' ? esc(s['Student Name'])+' is billed monthly, so lessons are not charged one at a time. Use <b>Bill monthly tuition</b> on the Payments tab.' :
+      (s['Student Name'] ? esc(s['Student Name'])+"'s rate is "+money(s['Lesson Rate'])+' per lesson.' : '');
+  };
+  const apply = () => {
+    const d = lessonDefaults(g('Student ID').value, g('Status').value);
+    g('Payment Owed').value = d['Payment Owed'];
+    g('Make-Up Owed').value = d['Make-Up Owed'];
+    g('Amount Charged').value = d['Amount Charged'];
+    explain();
+  };
+  g('Status').addEventListener('change', apply);
+  g('Student ID').addEventListener('change', apply);
+  g('Payment Owed').addEventListener('change', () => {
+    const s = student(g('Student ID').value) || {};
+    g('Amount Charged').value = (g('Payment Owed').value==='Yes' && s['Billing Type']!=='Monthly') ? num(s['Lesson Rate']) : 0;
+  });
+  if(!isEdit && g('Amount Charged').value==='') apply(); else explain();
+}
+
+/* ---------------- actions ---------------- */
+async function quickLog(sid, status){
+  const rec = Object.assign({ 'Date': UI.day, 'Student ID': sid, 'Status': status, 'Notes': '' }, lessonDefaults(sid, status));
+  try{ await apiPost({action:'logLesson', record: rec}); toast(sName(sid)+': '+status); render(); }
+  catch(e){ toast(e.message, true); }
+}
+async function makeupDone(muId, sid){
+  const rec = { 'Date': UI.day, 'Student ID': sid, 'Status': 'Make-Up Lesson', 'Payment Owed':'No', 'Amount Charged':0, 'Make-Up Owed':'No', 'Notes':'' };
+  try{ await apiPost({action:'logLesson', record: rec, makeupId: muId}); toast('Make-up marked complete'); render(); }
+  catch(e){ toast(e.message, true); }
+}
+/* ---------------- PASTE FROM CLAUDE ----------------
+   Claude turns a plain-English day summary into one JSON block like:
+   {"studioLog":1,"date":"2026-10-12",
+    "lessons":[{"student":"Nora","status":"Attended","charge":25,"makeup":false,"notes":""}],
+    "payments":[{"student":"Theo","amount":50,"method":"Venmo","for":"October","date":"2026-10-12","notes":""}],
+    "notes":[{"student":"Nora","piece":"Minuet 1","workedOn":"...","practice":"...","notes":""}],
+    "charges":[{"student":"Kai","description":"Book 2","amount":12,"date":""}],
+    "makeups":[{"student":"June","status":"Scheduled","missedDate":"2026-10-05","scheduledDate":"2026-10-15","scheduledTime":"4:00 PM","reason":"","notes":""}],
+    "students":[{"name":"New Kid","parent":"","phone":"","email":"","rate":25,"billing":"Per Lesson"}]}
+   status is one of: Attended, Canceled by Student, Canceled by Teacher, No-Show, Make-Up Lesson.
+   Omit "charge" to use the student's normal rate rules. */
+let IMPORT = null;
+function findStudentByName(name){
+  const n = String(name||'').trim().toLowerCase();
+  if(!n) return null;
+  const all = rows('Students');
+  let hit = all.filter(s => String(s['Student Name']).trim().toLowerCase() === n);
+  if(hit.length === 1) return hit[0];
+  hit = all.filter(s => String(s['Student Name']).trim().toLowerCase().startsWith(n) || n.startsWith(String(s['Student Name']).trim().toLowerCase().split(' ')[0]));
+  return hit.length === 1 ? hit[0] : null;
+}
+function importForm(){
+  IMPORT = null;
+  openModal('<h2>Paste from Claude</h2><p class="help">Tell Claude what you did today (who you taught, who canceled, who paid, what each student worked on). Claude replies with a block of text. Copy that whole block and paste it here.</p>' +
+    '<textarea id="importText" style="min-height:180px;font-family:ui-monospace,Menlo,monospace;font-size:12px" placeholder=\'{"studioLog":1, ...}\'></textarea>' +
+    '<div id="importPreview"></div>' +
+    '<div class="actions"><button class="btn" data-act="close">Cancel</button><button class="btn" data-act="importCheck">Check it</button><button class="btn primary" data-act="importSave" id="importSaveBtn" disabled>Save all</button></div>');
+  setTimeout(()=>{ const el = $('#importText'); if(el) el.focus(); }, 50);
+}
+function importCheck(){
+  const raw = $('#importText').value.trim();
+  const start = raw.indexOf('{'), end = raw.lastIndexOf('}');
+  let log;
+  try{ log = JSON.parse(raw.slice(start, end+1)); }catch(e){ toast('That text could not be read. Copy the whole block from Claude, from the first { to the last }.', true); return; }
+  const day = /^\d{4}-\d{2}-\d{2}$/.test(log.date||'') ? log.date : todayStr();
+  const ops = [], problems = [];
+  const newNames = (log.students||[]).map(s => String(s.name||'').trim().toLowerCase());
+  const who = (name, label) => {
+    const s = findStudentByName(name);
+    if(!s && !newNames.includes(String(name||'').trim().toLowerCase())) problems.push(label+': no student named "'+name+'"');
+    return s;
+  };
+  (log.students||[]).forEach(s => {
+    if(findStudentByName(s.name)) return;
+    ops.push({label:'New student: <b>'+esc(s.name)+'</b>', run:()=> apiPost({action:'add', tab:'Students', record:{'Student Name':s.name,'Parent Name':s.parent||'','Phone':s.phone||'','Email':s.email||'','Billing Type':s.billing||'Per Lesson','Lesson Rate':s.rate!=null?s.rate:setting('Default Lesson Rate',25),'Status':'Active','Start Date':day,'Notes':s.notes||''}})});
+  });
+  (log.lessons||[]).forEach(l => {
+    const s = who(l.student, 'Lesson'); const status = ATT.includes(l.status) ? l.status : 'Attended';
+    ops.push({label:'Lesson: <b>'+esc(l.student)+'</b> '+statusPill(status), run:()=>{
+      const st = s || findStudentByName(l.student); if(!st) throw new Error('Student not found: '+l.student);
+      const d = lessonDefaults(st['Student ID'], status);
+      if(l.charge != null && l.charge !== '') { d['Amount Charged'] = Number(l.charge); d['Payment Owed'] = Number(l.charge) > 0 ? 'Yes' : 'No'; }
+      if(l.makeup === true) d['Make-Up Owed'] = 'Yes'; if(l.makeup === false) d['Make-Up Owed'] = 'No';
+      const mu = status==='Make-Up Lesson' ? openMakeups(st['Student ID'])[0] : null;
+      return apiPost({action:'logLesson', record:Object.assign({'Date': l.date||day, 'Student ID': st['Student ID'], 'Status': status, 'Notes': l.notes||''}, d), makeupId: mu ? mu['Make-Up ID'] : ''});
+    }});
+  });
+  (log.payments||[]).forEach(p => {
+    const s = who(p.student, 'Payment');
+    ops.push({label:'Payment: <b>'+esc(p.student)+'</b> <span class="credit">'+money(p.amount)+'</span> '+esc(p.method||''), run:()=>{
+      const st = s || findStudentByName(p.student); if(!st) throw new Error('Student not found: '+p.student);
+      return apiPost({action:'add', tab:'Payments', record:{'Date':p.date||day,'Student ID':st['Student ID'],'Amount':Number(p.amount)||0,'Method':METHODS.includes(p.method)?p.method:(p.method?'Other':''),'For':p.for||'','Notes':p.notes||''}});
+    }});
+  });
+  (log.charges||[]).forEach(c => {
+    const s = who(c.student, 'Charge');
+    ops.push({label:'Charge: <b>'+esc(c.student)+'</b> '+esc(c.description||'')+' '+money(c.amount), run:()=>{
+      const st = s || findStudentByName(c.student); if(!st) throw new Error('Student not found: '+c.student);
+      return apiPost({action:'add', tab:'Charges', record:{'Date':c.date||day,'Student ID':st['Student ID'],'Description':c.description||'Charge','Amount':Number(c.amount)||0,'Notes':c.notes||''}});
+    }});
+  });
+  (log.notes||[]).forEach(n => {
+    const s = who(n.student, 'Note');
+    ops.push({label:'Lesson note: <b>'+esc(n.student)+'</b>'+(n.piece?' &middot; '+esc(n.piece):''), run:()=>{
+      const st = s || findStudentByName(n.student); if(!st) throw new Error('Student not found: '+n.student);
+      return apiPost({action:'add', tab:'Lesson Notes', record:{'Date':n.date||day,'Student ID':st['Student ID'],'Current Piece':n.piece||'','What We Worked On':n.workedOn||'','Practice Next':n.practice||'','Notes':n.notes||''}});
+    }});
+  });
+  (log.makeups||[]).forEach(m => {
+    const s = who(m.student, 'Make-up');
+    ops.push({label:'Make-up: <b>'+esc(m.student)+'</b> '+statusPill(m.status||'Owed')+(m.scheduledDate?' '+fmtDate(m.scheduledDate)+' '+esc(m.scheduledTime||''):''), run:()=>{
+      const st = s || findStudentByName(m.student); if(!st) throw new Error('Student not found: '+m.student);
+      const rec = {'Status':m.status||'Owed','Scheduled Date':m.scheduledDate||'','Scheduled Time':m.scheduledTime||'','Notes':m.notes||''};
+      const open = openMakeups(st['Student ID'])[0];
+      if(open && !m.missedDate) return apiPost({action:'update', tab:'Make-Ups', id:open['Make-Up ID'], record:rec});
+      return apiPost({action:'add', tab:'Make-Ups', record:Object.assign({'Student ID':st['Student ID'],'Missed Date':m.missedDate||'','Reason':m.reason||''}, rec)});
+    }});
+  });
+  IMPORT = { ops, day };
+  $('#importPreview').innerHTML = '<h3>'+ops.length+' item'+(ops.length===1?'':'s')+' for '+fmtDate(day,true)+'</h3>' +
+    (problems.length ? '<div class="card" style="border-color:var(--bad);margin-bottom:10px"><b class="owe">Fix these first</b><br>'+problems.map(esc).join('<br>')+'<div class="help">Spell the name the way it appears on your Students tab, or ask Claude to fix the block.</div></div>' : '') +
+    '<div class="card">'+(ops.map(o => '<div style="padding:4px 0">'+o.label+'</div>').join('') || '<span class="muted">Nothing to save.</span>')+'</div>';
+  $('#importSaveBtn').disabled = !ops.length || problems.length > 0;
+}
+async function importSave(){
+  if(!IMPORT || !IMPORT.ops.length) return;
+  const btn = $('#importSaveBtn');
+  let done = 0;
+  try{
+    for(const op of IMPORT.ops){ btn.textContent = 'Saving '+(done+1)+' of '+IMPORT.ops.length+'...'; await op.run(); done++; }
+    closeModal(); UI.day = IMPORT.day; toast('Saved all '+done+' items'); render();
+  }catch(e){
+    IMPORT.ops = IMPORT.ops.slice(done);
+    toast('Saved '+done+', then stopped: '+e.message+'. Click Save all to try the remaining '+IMPORT.ops.length+'.', true);
+    btn.textContent = 'Save remaining '+IMPORT.ops.length; btn.disabled = false;
+  }
+}
+
+function noteForm(sid){
+  const last = sid ? latestNote(sid) : null;
+  openForm('Lesson Notes', null, { 'Date': VIEW==='today' ? UI.day : todayStr(), 'Student ID': sid || '', 'Current Piece': last ? last['Current Piece'] : '' },
+    { intro: last && last['Practice Next'] ? '<b>Last assignment ('+fmtDate(last['Date'])+'):</b> '+esc(last['Practice Next']) : '' });
+}
+function payForm(sid){
+  const b = sid ? ledger(sid).balance : 0;
+  openForm('Payments', null, { 'Date': todayStr(), 'Student ID': sid||'', 'Amount': b>0 ? Number(b.toFixed(2)) : '', 'Method': '' },
+    { intro: sid ? esc(sName(sid))+' currently '+(b>0.004 ? 'owes '+money(b) : (b<-0.004 ? 'has a credit of '+money(-b) : 'is paid up'))+'.' : '' });
+}
+function billMonthlyForm(){
+  const ym = todayStr().slice(0,7);
+  const monthly = activeStudents().filter(s => s['Billing Type']==='Monthly');
+  openModal('<h2>Bill monthly tuition</h2><p>This adds one tuition charge for each <b>active monthly</b> student ('+monthly.length+' right now) at their monthly rate. Anyone already billed for that month is skipped, so it is safe to click twice.</p>' +
+    '<label class="f"><span>Month</span><input type="month" id="billMonth" value="'+ym+'"></label>' +
+    (monthly.length ? '<p class="help">'+monthly.map(s => esc(s['Student Name'])+' ('+money(s['Lesson Rate'])+')').join(', ')+'</p>' : '<p class="help">No active students are set to Monthly billing yet. Change a student\'s Billing Type to Monthly to use this.</p>') +
+    '<div class="actions"><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="doBill" '+(monthly.length?'':'disabled')+'>Add charges</button></div>');
+}
+
+document.addEventListener('click', async ev => {
+  const stop = ev.target.closest('[data-stop]');
+  const t = ev.target.closest('[data-act],[data-edit],[data-view]');
+  if(!t) { if(ev.target.id==='modal') closeModal(); return; }
+  if(stop && stop !== t && t.tagName==='TR') return;
+  if(t.dataset.view){ go(t.dataset.view); return; }
+  if(t.dataset.edit){ ev.preventDefault(); closeModal(); openForm(t.dataset.edit, t.dataset.id); return; }
+  const a = t.dataset.act;
+  if(t.tagName==='A') ev.preventDefault();
+  switch(a){
+    case 'go': go(t.dataset.v); break;
+    case 'close': closeModal(); break;
+    case 'retry': load(); break;
+    case 'calMode': UI.calMode = t.dataset.m; render(); break;
+    case 'printSched': { const k = $('#prKind').value, d = $('#prDate').value || todayStr(); UI.printDate = d; closeModal();
+      ({day:printDaySchedule, week:printWeekSchedule, month:printMonthSchedule, year:printYearSchedule})[k](d); break; }
+    case 'printPage': closeModal(); printCurrent(); break;
+    case 'printModal': printCurrent(); break;
+    case 'printSchedOpen': openSchedulePrint(); break;
+    case 'calShift': UI.calDay = addDays(weekStart(UI.calDay||todayStr()), Number(t.dataset.n)); render(); break;
+    case 'calToday': UI.calDay = todayStr(); render(); break;
+    case 'importDay': importForm(); break;
+    case 'importCheck': importCheck(); break;
+    case 'importSave': t.disabled = true; await importSave(); break;
+    case 'add': openForm(t.dataset.tab, null, defaultsFor(t.dataset.tab)); break;
+    case 'addFor': { const sid = t.dataset.sid; closeModal();
+      const pre = Object.assign(defaultsFor(t.dataset.tab), {'Student ID': sid});
+      if(t.dataset.tab === 'Mileage'){ const st = student(sid) || {}; pre['Purpose'] = 'Violin lesson - ' + (st['Student Name']||''); if(num(st['Miles Per Lesson']) > 0) pre['Miles'] = st['Miles Per Lesson']; }
+      openForm(t.dataset.tab, null, pre, {reopenStudent: sid}); break; }
+    case 'student': studentDetail(t.dataset.id); break;
+    case 'log': t.disabled = true; await quickLog(t.dataset.sid, t.dataset.s); break;
+    case 'logForm': openForm('Attendance', null, Object.assign({'Date': UI.day, 'Student ID': t.dataset.sid, 'Status': t.dataset.s}, lessonDefaults(t.dataset.sid, t.dataset.s)), {title:'Log cancellation', intro:'Check whether this lesson should be charged and whether a make-up is owed, then Save.'}); break;
+    case 'muDone': t.disabled = true; await makeupDone(t.dataset.mu, t.dataset.sid); break;
+    case 'note': closeModal(); noteForm(t.dataset.sid); break;
+    case 'pay': closeModal(); payForm(t.dataset.sid); break;
+    case 'dayShift': { const d = dateObj(UI.day); d.setDate(d.getDate() + Number(t.dataset.n)); UI.day = d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); render(); break; }
+    case 'dayToday': UI.day = todayStr(); render(); break;
+    case 'muFilter': UI.muStatus = t.dataset.s; render(); break;
+    case 'attAll': UI.attMonth = ''; render(); break;
+    case 'expCat': UI.expCat = t.dataset.cat; render(); break;
+    case 'expClear': UI.expCat = ''; UI.expQ = ''; render(); break;
+    case 'saveMiles': { const el = document.getElementById('studentMiles'); saveMiles(t.dataset.sid, el ? el.value : '', t); break; }
+    case 'payClear': UI.payQ = ''; UI.payStudent = ''; UI.payMonth = ''; UI.payMethod = ''; render(); break;
+    case 'billMonthly': billMonthlyForm(); break;
+    case 'doBill': {
+      const ym = $('#billMonth').value; if(!ym) return;
+      t.disabled = true;
+      try{ const n = await apiPost({action:'billMonthly', date: ym+'-01', label: monthLabel(ym)}); closeModal(); toast(n ? 'Added '+n+' tuition charge'+(n===1?'':'s') : 'Everyone was already billed for that month'); render(); }
+      catch(e){ toast(e.message, true); t.disabled = false; }
+      break;
+    }
+    case 'del': {
+      if(!confirm('Delete this '+SINGULAR[t.dataset.tab].toLowerCase()+'? This cannot be undone.')) return;
+      try{ await apiPost({action:'delete', tab:t.dataset.tab, id:t.dataset.id}); closeModal(); toast('Deleted'); render(); }
+      catch(e){ toast(e.message, true); }
+      break;
+    }
+    case 'saveCfg': {
+      const url = $('#cfgUrl').value.trim(), key = $('#cfgKey').value.trim();
+      if(!/^https:\/\/script\.google\.com\/.+\/exec$/.test(url)){ toast('The URL should start with https://script.google.com and end with /exec', true); return; }
+      if(!key){ toast('Paste your Studio Key', true); return; }
+      cfg.url = url; cfg.key = key; store.set('vs_url', url); store.set('vs_key', key);
+      VIEW = 'today'; store.set('vs_view','today');
+      await load(true);
+      if(DATA) toast('Connected to your Google Sheet');
+      else { VIEW = 'settings'; render(); }
+      break;
+    }
+    case 'toggleKey': { const k = $('#cfgKey'); k.type = k.type==='password' ? 'text' : 'password'; t.textContent = k.type==='password' ? 'Show key' : 'Hide key'; break; }
+  }
+});
+
+function defaultsFor(tab){
+  const d = todayStr();
+  return {
+    'Students': {'Status':'Active','Billing Type':'Per Lesson','Start Date':d},
+    'Schedule': {},
+    'Attendance': {'Date': VIEW==='today' ? UI.day : d, 'Status':'Attended'},
+    'Payments': {'Date': d},
+    'Charges': {'Date': d},
+    'Make-Ups': {'Status':'Owed'},
+    'Lesson Notes': {'Date': d},
+    'Mileage': {'Date': d, 'Rate': num(setting('Mileage Rate (per mile)', 0.76))},
+    'Expenses': {'Date': d, 'Business Use %': 100}
+  }[tab] || {};
+}
+
+function afterRender(){
+  const on = (id, evt, fn) => { const el = document.getElementById(id); if(el) el.addEventListener(evt, fn); };
+  on('dayPick','change', e => { if(e.target.value){ UI.day = e.target.value; render(); } });
+  on('studentQ','input', e => { UI.studentQ = e.target.value; const pos = e.target.selectionStart; render(); const el = $('#studentQ'); el.focus(); el.setSelectionRange(pos,pos); });
+  on('showInactive','change', e => { UI.showInactive = e.target.checked; render(); });
+  on('attStudent','change', e => { UI.attStudent = e.target.value; render(); });
+  on('attMonth','change', e => { UI.attMonth = e.target.value; render(); });
+  on('payQ','input', e => { UI.payQ = e.target.value; const pos = e.target.selectionStart, y = window.scrollY; render(); window.scrollTo(0,y); const el = $('#payQ'); el.focus({preventScroll:true}); el.setSelectionRange(pos,pos); });
+  on('payStudent','change', e => { UI.payStudent = e.target.value; render(); });
+  on('payMonth','change', e => { UI.payMonth = e.target.value; render(); });
+  on('payMethod','change', e => { UI.payMethod = e.target.value; render(); });
+  on('expYear','change', e => { UI.expYear = e.target.value; render(); });
+  on('expCat','change', e => { UI.expCat = e.target.value; render(); });
+  on('expQ','input', e => { UI.expQ = e.target.value; const pos = e.target.selectionStart, y = window.scrollY; render(); window.scrollTo(0,y); const el = $('#expQ'); el.focus({preventScroll:true}); el.setSelectionRange(pos,pos); });
+  on('mileYear','change', e => { UI.mileYear = e.target.value; render(); });
+  on('mileStudent','change', e => { UI.mileStudent = e.target.value; render(); });
+  document.querySelectorAll('.mplIn').forEach(el => {
+    el.addEventListener('change', () => saveMiles(el.dataset.sid, el.value, el));
+    el.addEventListener('keydown', e => { if(e.key === 'Enter') el.blur(); });
+  });
+  on('noteStudent','change', e => { UI.noteStudent = e.target.value; render(); });
+}
+
+$('#refreshBtn').addEventListener('click', () => load());
+$('#printBtn').addEventListener('click', onPrintClick);
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+document.addEventListener('visibilitychange', () => { if(!document.hidden && cfg.url && DATA) load(true); });
+$('#view').addEventListener('focusout', () => setTimeout(() => { if(safeRender.pending) safeRender(); }, 0));
+(function(){ const c = cfg.url && cfg.key ? cacheLoad() : null;
+  if(c){ DATA = c.data; render(); $('#sync').textContent = 'Updating...'; } else render(); })();
+load(true);
+</script>
+</body>
+</html>
