@@ -143,6 +143,12 @@ label.f span{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
 .ev.off{opacity:.5}
 .ev.off b{text-decoration:line-through}
 .ev.mu{border-left-style:dashed;outline:1px dashed hsl(var(--h) 55% 45% / .6)}
+.ev.sw{border-left-style:double;border-left-width:5px;outline:1px dashed var(--info)}
+.ev.sw b::after{content:"  \21C4";color:var(--info)}
+.swapcard{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center;background:var(--soft);border-radius:10px;padding:10px;margin:8px 0}
+.swapcard small{display:block;color:var(--muted);font-size:12px}
+.swapcard .arr{font-size:22px;color:var(--info);font-weight:700}
+.tabbadge{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:999px;background:var(--warn);color:#fff;font-size:11px;line-height:18px}
 .cal .ev{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;cursor:grab}
 .cal .ev.dragging{z-index:30;cursor:grabbing;box-shadow:0 8px 22px rgba(0,0,0,.28);opacity:.95;background:hsl(var(--h) 65% 88%);transition:none}
 .cal .ev.dragging span{color:var(--ink);font-weight:600}
@@ -228,14 +234,18 @@ const store = {
   set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 };
 const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbx4uVSRYL9kKOEJFDvy593xzi7WvDf6zJVZe08Eu2pGqazApEqvpHRCITA8ute8egHqLQ/exec';
-const cfg = { url: store.get('vs_url') || DEFAULT_URL, key: store.get('vs_key') };
+const cfg = { url: store.get('vs_url') || DEFAULT_URL, key: store.get('vs_key'), swapUrl: store.get('vs_swap_url'), swapKey: store.get('vs_swap_key') };
+/* Lesson Swap Board (separate Apps Script). Approved one-time swaps show on Today and the Calendar. */
+let SWAPS = (function(){ try{ return JSON.parse(localStorage.getItem('vs_swaps') || '[]'); }catch(e){ return []; } })();
+let SWAP_BOARD_URL = store.get('vs_swap_board');
+let SWAP_ERR = '';
 
 let DATA = null;
 let VIEW = store.get('vs_view') || 'today';
 const UI = { day: todayStr(), studentQ: '', attStudent: '', attMonth: todayStr().slice(0,7), muStatus: 'Open', noteStudent: '', showInactive: false, payQ: '', payStudent: '', payMonth: '', payMethod: '', mileYear: todayStr().slice(0,4), mileStudent: '', expYear: todayStr().slice(0,4), expCat: '', expQ: '' };
 
 const VIEWS = [
-  ['today','Today'],['students','Students'],['schedule','Calendar'],['attendance','Attendance'],
+  ['today','Today'],['students','Students'],['schedule','Calendar'],['swaps','Swaps'],['attendance','Attendance'],
   ['payments','Payments'],['mileage','Mileage'],['expenses','Expenses'],['makeups','Make-Ups'],['notes','Lesson Notes'],['settings','Settings']
 ];
 
@@ -399,6 +409,84 @@ async function load(quiet){
     if(!(quiet && hadData)) toast(e.message === 'Failed to fetch' ? 'Could not reach your Google script. Check the URL in Settings.' : e.message, true);
   }finally{ load.tried = true; busy(false); if(hadData) safeRender(); else render(); }
   if(DATA) syncInbox();
+  loadSwaps();
+}
+
+/* ---------------- LESSON SWAP BOARD ---------------- */
+function swapReady(){ return !!(cfg.swapUrl && cfg.swapKey); }
+function saveSwaps(list){ SWAPS = list || []; try{ localStorage.setItem('vs_swaps', JSON.stringify(SWAPS)); }catch(e){} }
+async function loadSwaps(){
+  if(!swapReady()) return;
+  try{
+    const r = await fetch(cfg.swapUrl + '?api=teacher&key=' + encodeURIComponent(cfg.swapKey));
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.error || 'Swap Board did not answer');
+    saveSwaps(j.swaps);
+    if(j.boardUrl){ SWAP_BOARD_URL = j.boardUrl; store.set('vs_swap_board', j.boardUrl); }
+    SWAP_ERR = '';
+  }catch(e){
+    SWAP_ERR = e.message === 'Failed to fetch' ? 'Could not reach the Swap Board. Check its link in Settings.' : e.message;
+  }
+  if(DATA || VIEW === 'swaps' || VIEW === 'settings') safeRender();
+}
+async function swapDecide(id, action){
+  const r = await fetch(cfg.swapUrl, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({api:'decide', key: cfg.swapKey, id, action}) });
+  const j = await r.json();
+  if(!j.ok) throw new Error(j.error || 'The Swap Board could not save that');
+  saveSwaps(j.swaps);
+  return j.message;
+}
+/* For one date: which regular lesson slots are taken by a different student because of an approved one-time swap. */
+function swapsOn(date){
+  const out = [];
+  SWAPS.filter(x => x.status === 'Approved' && x.type !== 'Permanent').forEach(x => {
+    if(x.date === date) out.push({schedId:x.schedId, giveSid:x.sid, giveName:x.student, takeSid:x.claimSid, takeName:x.claimStudent, day:x.day, time:x.time, id:x.id});
+    if(x.theirDate === date) out.push({schedId:x.claimSchedId, giveSid:x.claimSid, giveName:x.claimStudent, takeSid:x.sid, takeName:x.student, day:x.theirDay, time:x.theirTime, id:x.id});
+  });
+  return out;
+}
+function swapForSlot(list, r){
+  return list.find(o => (o.schedId && o.schedId === r['Schedule ID'] && o.giveSid === r['Student ID']) ||
+    (!o.schedId && o.giveSid === r['Student ID'] && o.day === r['Day'] && mins(o.time) === mins(r['Time']))) || null;
+}
+
+function vSwaps(){
+  let h = '<div class="row between"><h2>Lesson Swaps</h2><div class="row">' +
+    (swapReady() ? '<button class="btn small" data-act="swapsRefresh">Refresh</button>' : '') +
+    (SWAP_BOARD_URL ? '<a class="btn small" href="'+esc(SWAP_BOARD_URL)+'" target="_blank" rel="noopener">Open family Swap Board</a><button class="btn small" data-act="swapCopy">Copy link for families</button>' : '') +
+    '</div></div>';
+  if(!swapReady()){
+    return h + '<div class="card empty">Connect your Lesson Swap Board to see and approve trades here.<br><br>Open Settings and paste the Swap Board link and key.<br><br><button class="btn primary" data-view="settings">Open Settings</button></div>';
+  }
+  if(SWAP_ERR) h += '<div class="card" style="border-color:var(--bad);color:var(--bad);margin-bottom:12px">'+esc(SWAP_ERR)+'</div>';
+  const today = todayStr();
+  const trade = x => '<div class="swapcard"><div><small>'+esc(x.claimStudent)+' takes</small><b>'+esc(x.day+' '+x.time)+'</b><br>'+fmtDate(x.date)+'</div><div class="arr">&#8644;</div>' +
+    '<div><small>'+esc(x.student)+' takes</small><b>'+esc(x.theirDay+' '+x.theirTime)+'</b><br>'+fmtDate(x.theirDate)+'</div></div>';
+  const typeLine = x => x.type === 'Permanent' ? '<span class="pill purple">Every week</span>' : '<span class="pill info">One time</span>';
+
+  const pending = SWAPS.filter(x => x.status === 'Pending Approval');
+  h += '<h3>Waiting for you'+(pending.length ? ' ('+pending.length+')' : '')+'</h3>';
+  if(!pending.length) h += '<div class="card empty">No trades waiting for approval.</div>';
+  pending.forEach(x => {
+    h += '<div class="card" style="margin-bottom:10px"><div class="row between"><b>'+esc(x.student)+' &amp; '+esc(x.claimStudent)+'</b>'+typeLine(x)+'</div>' + trade(x) +
+      (x.message ? '<div class="help">Note from '+esc(x.student)+'\'s family: "'+esc(x.message)+'"</div>' : '') +
+      (x.type === 'Permanent' ? '<div class="help">Approving trades their weekly times on your schedule.</div>' : '<div class="help">Approving changes these two dates only. Your weekly schedule stays the same.</div>') +
+      '<div class="row" style="margin-top:8px"><button class="btn primary" data-act="swapDecide" data-id="'+esc(x.id)+'" data-a="approve">Approve</button>' +
+      '<button class="btn" data-act="swapDecide" data-id="'+esc(x.id)+'" data-a="decline">Decline</button></div></div>';
+  });
+
+  const open = SWAPS.filter(x => x.status === 'Open');
+  h += '<h3 style="margin-top:20px">Posted, not grabbed yet</h3>';
+  h += open.length ? open.map(x => '<div class="lrow" style="--h:'+hueFor(x.student)+'"><span class="lt">'+esc(x.time)+'</span><span class="ln">'+esc(x.student)+'</span><span class="help">'+esc(x.day)+' '+fmtDate(x.date)+'</span>'+typeLine(x)+'</div>').join('')
+    : '<div class="card empty">Nothing posted right now.</div>';
+
+  const done = SWAPS.filter(x => x.status === 'Approved' && (x.date >= today || x.theirDate >= today))
+    .sort((a,b)=> String(a.date).localeCompare(String(b.date)));
+  h += '<h3 style="margin-top:20px">Approved and coming up</h3>';
+  h += done.length ? done.map(x => '<div class="card" style="margin-bottom:8px"><div class="row between"><b>'+esc(x.student)+' &amp; '+esc(x.claimStudent)+'</b>'+typeLine(x)+'</div>'+trade(x)+'</div>').join('')
+    : '<div class="card empty">No approved swaps coming up.</div>';
+  h += '<p class="help">One-time swaps show on Today and the Calendar with a &#8644; mark. Log those lessons as usual: the student who comes is the one charged.</p>';
+  return h;
 }
 
 /* ---------------- AUTO-SYNC FROM CLAUDE ----------------
@@ -519,7 +607,8 @@ function stamp(){ $('#sync').textContent = 'Synced ' + new Date().toLocaleTimeSt
 
 /* ---------------- shell ---------------- */
 function renderTabs(){
-  $('#tabs').innerHTML = VIEWS.map(([k,l]) => '<button data-view="'+k+'" class="'+(k===VIEW?'on':'')+'">'+l+'</button>').join('');
+  const waiting = SWAPS.filter(x => x.status === 'Pending Approval').length;
+  $('#tabs').innerHTML = VIEWS.map(([k,l]) => '<button data-view="'+k+'" class="'+(k===VIEW?'on':'')+'">'+l+(k==='swaps' && waiting ? '<span class="tabbadge">'+waiting+'</span>' : '')+'</button>').join('');
 }
 function render(){
   renderTabs();
@@ -530,7 +619,7 @@ function render(){
     $('#view').innerHTML = load.tried ? '<div class="card empty">Could not load your studio yet.<br><br><button class="btn" data-view="settings">Check Settings</button> <button class="btn primary" data-act="retry">Try again</button></div>' : '<div class="empty">Loading your studio...</div>';
     return;
   }
-  const fn = { today:vToday, students:vStudents, schedule:vSchedule, attendance:vAttendance, payments:vPayments, mileage:vMileage, expenses:vExpenses, makeups:vMakeups, notes:vNotes, settings:vSettings }[VIEW] || vToday;
+  const fn = { today:vToday, students:vStudents, schedule:vSchedule, swaps:vSwaps, attendance:vAttendance, payments:vPayments, mileage:vMileage, expenses:vExpenses, makeups:vMakeups, notes:vNotes, settings:vSettings }[VIEW] || vToday;
   $('#view').innerHTML = fn();
   afterRender();
 }
@@ -552,7 +641,9 @@ function studentOptions(selected, includeAll){
 function vToday(){
   const day = UI.day;
   const weekday = DAYS[dateObj(day).getDay()];
+  const todaySwaps = swapsOn(day);
   const slots = rows('Schedule').filter(r => r['Day']===weekday && (student(r['Student ID'])||{})['Status']==='Active')
+    .map(r => { const sw = swapForSlot(todaySwaps, r); return sw ? Object.assign({}, r, {'Student ID': sw.takeSid, _swapWas: sw.giveName}) : r; })
     .sort((a,b)=> mins(a['Time'])-mins(b['Time']));
   const mus = rows('Make-Ups').filter(m => m['Scheduled Date']===day && m['Status']==='Scheduled');
   const owedTotal = rows('Students').reduce((a,s)=> { const b = ledger(s['Student ID']).balance; return a + (b>0?b:0); }, 0);
@@ -586,7 +677,8 @@ function vToday(){
     const ln = latestNote(sid);
     h += '<div class="card lesson"><div><div class="time">'+esc(it.time||'')+'</div><div class="len">'+(it.type==='regular' ? esc(it.s['Length (min)']||setting('Default Lesson Length (min)',30))+' min' : 'Make-up')+'</div></div><div>' +
       '<div class="row between"><div class="name"><a href="#" data-act="student" data-id="'+esc(sid)+'" style="color:inherit;text-decoration:none">'+esc(st['Student Name']||sid)+'</a></div>' +
-      (logged ? '<div>'+statusPill(logged['Status'])+' <button class="btn small" data-edit="Attendance" data-id="'+esc(logged['Record ID'])+'">Edit</button></div>' : (it.type==='makeup' ? '<span class="pill purple">Make-up lesson</span>' : '')) + '</div>' +
+      (logged ? '<div>'+statusPill(logged['Status'])+' <button class="btn small" data-edit="Attendance" data-id="'+esc(logged['Record ID'])+'">Edit</button></div>' : (it.type==='makeup' ? '<span class="pill purple">Make-up lesson</span>' : '')) +
+      (it.type==='regular' && it.s._swapWas ? ' <span class="pill info">&#8644; Swapped in for '+esc(it.s._swapWas)+'</span>' : '') + '</div>' +
       '<div class="meta">'+(st['Parent Name'] ? 'Parent: '+esc(st['Parent Name'])+' &middot; ' : '')+(bal>0.004 ? '<span class="owe">Owes '+money(bal)+'</span>' : (bal<-0.004 ? '<span class="credit">Credit '+money(-bal)+'</span>' : 'Paid up')) +
       (ln && ln['Current Piece'] ? ' &middot; Working on: <b>'+esc(ln['Current Piece'])+'</b>' : '') + '</div>';
     if(!logged){
@@ -701,9 +793,13 @@ function weekEvents(ws){
   for(let i = 0; i < 7; i++){
     const date = addDays(ws, i), day = DAYS[i];
     const ev = [];
+    const swaps = swapsOn(date);
     rows('Schedule').filter(r => r['Day']===day && (student(r['Student ID'])||{})['Status']==='Active').forEach(r => {
-      const att = rows('Attendance').find(a => a['Date']===date && a['Student ID']===r['Student ID'] && a['Status']!=='Make-Up Lesson');
-      ev.push({kind:'regular', sid:r['Student ID'], name:r['Student Name'], start:mins(r['Time']), len:lenOf(r), time:r['Time'], att, schedId:r['Schedule ID']});
+      const sw = swapForSlot(swaps, r);
+      const sid = sw ? sw.takeSid : r['Student ID'];
+      const att = rows('Attendance').find(a => a['Date']===date && a['Student ID']===sid && a['Status']!=='Make-Up Lesson');
+      if(sw) ev.push({kind:'swap', sid, name: sName(sid) || sw.takeName, start:mins(r['Time']), len:lenOf(r), time:r['Time'], att, swapWas: sw.giveName});
+      else ev.push({kind:'regular', sid, name:r['Student Name'], start:mins(r['Time']), len:lenOf(r), time:r['Time'], att, schedId:r['Schedule ID']});
     });
     rows('Make-Ups').filter(m => m['Scheduled Date']===date && (m['Status']==='Scheduled' || m['Status']==='Completed') && mins(m['Scheduled Time']) < 9999).forEach(m => {
       const reg = rows('Schedule').find(r => r['Student ID']===m['Student ID']);
@@ -770,7 +866,7 @@ function vSchedule(){
       d.ev.forEach(e => {
         const hue = hueFor(e.name);
         const st = evStatus(e);
-        h += '<div class="lrow" data-act="student" data-id="'+esc(e.sid)+'" style="--h:'+hue+'"><span class="lt">'+esc(e.time)+'</span><span class="ln">'+esc(e.name)+'</span><span class="help">'+e.len+' min</span>'+(st?statusPill(st==='Make-up'?'Scheduled':st==='Make-up done'?'Completed':st):'')+(e.kind==='makeup'?'<span class="pill purple">Make-up</span>':'')+'</div>';
+        h += '<div class="lrow" data-act="student" data-id="'+esc(e.sid)+'" style="--h:'+hue+'"><span class="lt">'+esc(e.time)+'</span><span class="ln">'+esc(e.name)+'</span><span class="help">'+e.len+' min</span>'+(st?statusPill(st==='Make-up'?'Scheduled':st==='Make-up done'?'Completed':st):'')+(e.kind==='makeup'?'<span class="pill purple">Make-up</span>':'')+(e.kind==='swap'?'<span class="pill info">&#8644; Swap (for '+esc(e.swapWas)+')</span>':'')+'</div>';
       });
       d.extra.forEach(a => { h += '<div class="lrow" data-act="student" data-id="'+esc(a['Student ID'])+'" style="--h:'+hueFor(a['Student Name'])+'"><span class="lt">Extra</span><span class="ln">'+esc(a['Student Name'])+'</span>'+statusPill(a['Status'])+'</div>'; });
       h += '</div>';
@@ -803,7 +899,7 @@ function vSchedule(){
     d.ev.forEach(e => {
       const w = 100 / e.lanes;
       const st = evStatus(e);
-      h += '<div class="'+evClass(e)+(e.kind==='makeup'?' mu':'')+'" data-act="student" data-id="'+esc(e.sid)+'" data-kind="'+e.kind+'" data-sched="'+esc(e.schedId||'')+'" data-mu="'+esc(e.muId||'')+'" data-start="'+e.start+'" data-len="'+e.len+'" data-name="'+esc(e.name)+'" data-day="'+d.day+'" title="'+esc(e.name+' '+e.time+' ('+e.len+' min)'+(st?' - '+st:''))+'" style="--h:'+hueFor(e.name)+';top:'+((e.start-lo)*PX+1)+'px;height:'+(e.len*PX-3)+'px;left:calc('+(e.lane*w)+'% + 2px);width:calc('+w+'% - 4px)">' +
+      h += '<div class="'+evClass(e)+(e.kind==='makeup'?' mu':'')+(e.kind==='swap'?' sw':'')+'" data-act="student" data-id="'+esc(e.sid)+'" data-kind="'+e.kind+'" data-sched="'+esc(e.schedId||'')+'" data-mu="'+esc(e.muId||'')+'" data-start="'+e.start+'" data-len="'+e.len+'" data-name="'+esc(e.name)+'" data-day="'+d.day+'" title="'+esc(e.name+' '+e.time+' ('+e.len+' min)'+(st?' - '+st:'')+(e.kind==='swap'?' - swapped in for '+e.swapWas:''))+'" style="--h:'+hueFor(e.name)+';top:'+((e.start-lo)*PX+1)+'px;height:'+(e.len*PX-3)+'px;left:calc('+(e.lane*w)+'% + 2px);width:calc('+w+'% - 4px)">' +
         '<b>'+esc(e.name)+'</b><span>'+esc(e.time)+(e.len!==30?' &middot; '+e.len+'m':'')+'</span>'+(st && e.len>=45?'<span class="st">'+esc(st)+'</span>':'')+'</div>';
     });
     h += '</div>';
@@ -1064,6 +1160,7 @@ function dragEnd(){
 document.addEventListener('pointerdown', e => {
   const el = e.target.closest('.cal .ev');
   if(!el || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  if(el.dataset.kind === 'swap'){ return; } // a one-time swap is changed on the Swap Board, not by dragging
   DRAG = {el, x0: e.clientX, y0: e.clientY, started: false, ready: e.pointerType === 'mouse'};
   if(!DRAG.ready){
     const d = DRAG;
@@ -1136,7 +1233,7 @@ function evLine(e, short){
   const st = evStatus(e);
   const off = e.att && (String(e.att['Status']).startsWith('Canceled') || e.att['Status'] === 'No-Show');
   const t = short ? String(e.time).replace(':00','').replace(' AM','a').replace(' PM','p') : esc(e.time);
-  return '<div class="e'+(off?' off':'')+'">'+t+' '+esc(e.name)+(short ? '' : ' <span style="color:#555">('+e.len+' min)</span>')+(e.kind==='makeup' ? ' <i>make-up</i>' : '')+(st && !short && e.kind!=='makeup' ? ' <i>'+esc(st)+'</i>' : '')+'</div>';
+  return '<div class="e'+(off?' off':'')+'">'+t+' '+esc(e.name)+(short ? '' : ' <span style="color:#555">('+e.len+' min)</span>')+(e.kind==='makeup' ? ' <i>make-up</i>' : '')+(e.kind==='swap' ? ' <i>swap</i>' : '')+(st && !short && e.kind!=='makeup' ? ' <i>'+esc(st)+'</i>' : '')+'</div>';
 }
 function longDate(ds){ return dateObj(ds).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'}); }
 function printDaySchedule(date){
@@ -1231,7 +1328,12 @@ function vSettings(){
     '<label class="f"><span>Studio Key</span><input type="password" id="cfgKey" placeholder="violin-..." value="'+esc(cfg.key)+'"></label>' +
     '<div class="row"><button class="btn primary" data-act="saveCfg">Save and connect</button><button class="btn" data-act="toggleKey">Show key</button></div></div>' +
     '<p class="help" style="margin-top:14px">Your student information is never stored on GitHub. It lives only in your Google Sheet, and this page can read it only with your Studio Key. The URL and key are saved in this browser only.</p>' +
-    (DATA ? '<p class="help">Studio name, teacher email, default rate and default lesson length can be changed on the Settings tab inside the Google Sheet.</p>' : '') + '</div>';
+    (DATA ? '<p class="help">Studio name, teacher email, default rate and default lesson length can be changed on the Settings tab inside the Google Sheet.</p>' : '') +
+    '<h3 style="margin-top:24px">Lesson Swap Board</h3>' +
+    '<p class="help">Lets families trade lesson times. Paste the Swap Board web app link and the Studio Key from the Settings tab of your Swap Board sheet.</p>' +
+    '<div class="card"><label class="f"><span>Swap Board web app URL (ends in /exec)</span><input type="url" id="swapUrl" placeholder="https://script.google.com/macros/s/.../exec" value="'+esc(cfg.swapUrl)+'"></label>' +
+    '<label class="f"><span>Swap Board key</span><input type="password" id="swapKey" placeholder="swap-..." value="'+esc(cfg.swapKey)+'"></label>' +
+    '<div class="row"><button class="btn primary" data-act="saveSwapCfg">Save and connect Swap Board</button>' + (swapReady() ? '<span class="help">'+(SWAP_ERR ? '<span style="color:var(--bad)">'+esc(SWAP_ERR)+'</span>' : 'Connected')+'</span>' : '') + '</div></div></div>';
 }
 
 /* ---------------- forms ---------------- */
@@ -1518,6 +1620,27 @@ document.addEventListener('click', async ev => {
       catch(e){ toast(e.message, true); }
       break;
     }
+    case 'saveSwapCfg': {
+      const url = $('#swapUrl').value.trim(), key = $('#swapKey').value.trim();
+      if(!/^https:\/\/script\.google\.com\/.+\/exec$/.test(url)){ toast('The Swap Board URL should start with https://script.google.com and end with /exec', true); return; }
+      if(!key){ toast('Paste your Swap Board key', true); return; }
+      cfg.swapUrl = url; cfg.swapKey = key; store.set('vs_swap_url', url); store.set('vs_swap_key', key);
+      busy(true); await loadSwaps(); busy(false);
+      if(SWAP_ERR) toast(SWAP_ERR, true); else { toast('Swap Board connected'); go('swaps'); }
+      break; }
+    case 'swapsRefresh': busy(true); await loadSwaps(); busy(false); if(SWAP_ERR) toast(SWAP_ERR, true); else toast('Swaps up to date'); break;
+    case 'swapCopy': try{ await navigator.clipboard.writeText(SWAP_BOARD_URL); toast('Link copied. Send it to your families.'); }catch(e){ toast(SWAP_BOARD_URL); } break;
+    case 'swapDecide': {
+      const x = SWAPS.find(s => s.id === t.dataset.id) || {};
+      if(t.dataset.a === 'decline' && !confirm('Decline this trade? '+(x.student||'The posted')+'\'s lesson goes back on the board.')) return;
+      t.disabled = true; busy(true);
+      try{
+        const msg = await swapDecide(t.dataset.id, t.dataset.a);
+        toast(msg);
+        if(t.dataset.a === 'approve' && x.type === 'Permanent') await load(true); else render();
+      }catch(e){ toast(e.message, true); t.disabled = false; }
+      finally{ busy(false); }
+      break; }
     case 'saveCfg': {
       const url = $('#cfgUrl').value.trim(), key = $('#cfgKey').value.trim();
       if(!/^https:\/\/script\.google\.com\/.+\/exec$/.test(url)){ toast('The URL should start with https://script.google.com and end with /exec', true); return; }
